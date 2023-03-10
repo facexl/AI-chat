@@ -16,7 +16,7 @@
       />
       <a-input
         v-model:value="state.msg"
-        addon-before="target language"
+        addon-before="引导语"
         placeholder="please input first message"
       />
       <a-button
@@ -29,10 +29,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-
-// chrome.storage.sync.set({key1: value1, key2: value2, ...}, function() {
-//   console.log('Value is set');
-// });
 
 const state = reactive({
   apikey:'',
