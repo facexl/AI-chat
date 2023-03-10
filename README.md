@@ -5,3 +5,10 @@
 ## 使用方式:
 
 由于暂时还没有上架 chrome 应用商店，只能通过下载当前项目，chrome 地址栏输入 `chrome://extensions/`，打开开发者模式，选择`加载已解压的扩展程序`然后选择本项目的 `dist`目录。
+
+## Road Map  
+
+- [ ] 不依赖 ant-design-vue ( css 太多 容易污染 )  
+- [ ] css 命名问题 (也考虑 shodow dom)  
+- [ ] popup.html ui 优化一下  
+- [ ] 翻译面板增加固钉、拖拽、放大效果  
