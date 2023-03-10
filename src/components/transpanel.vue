@@ -66,8 +66,7 @@ watch(tipMsg,()=>{
 })
 
 const msgs = ref([
-  { role: 'system', content: 'be nice' },
-  { role: 'user', content: `翻译成中文:${props.select}` },
+  { role: 'system', content: 'be nice' }
 ])
 
 onMounted(()=>{
