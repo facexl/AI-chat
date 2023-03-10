@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+  
+    "name": "AI翻译",
+    "description": "AI翻译是一款划词翻译拓展，利用 chatGpt api 进行翻译，支持聊天",
+    "version": "1.0",
+  
+    "action": {
+      "default_icon": "icon.png",
+      "default_popup": "popup.html"
+    },
+    "options_ui": {
+      "page": "popup.html"
+    },
+    "web_accessible_resources": [
+      {
+        "resources": ["style.css","icon.png"],
+        "matches": ["<all_urls>"]
+      }
+    ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "all_frames": true,
+            "js": ["content.js","aichat.iife.js"]
+        }
+    ],
+  
+  
+    "permissions": [
+      "storage"
+    ],
+  
+    "host_permissions": ["https://*.openai.com/"]
+  }
+  
