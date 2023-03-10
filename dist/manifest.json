@@ -2,7 +2,7 @@
     "manifest_version": 3,
   
     "name": "AI-chat",
-    "description": "AI-chat是一款划词翻译拓展，利用 chatGpt api 进行翻译，支持聊天",
+    "description": "AI-chat 是一款 openai chatGpt api 驱动的划词聊天、划词翻译 chrome 插件，支持预设引导语,支持聊天",
     "version": "1.0",
   
     "action": {

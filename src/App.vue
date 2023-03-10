@@ -1,8 +1,8 @@
 
 <template>
-  <div>hello my name is jack</div>
+  <!-- <div>hello my name is xl</div>
   <div>are you ok</div>
-  <div>are you kidding me</div>
+  <div>are you kidding me</div> -->
   <div
     v-show="showicon"
     ref="icon"
