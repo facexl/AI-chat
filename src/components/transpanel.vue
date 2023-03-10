@@ -76,11 +76,11 @@ onMounted(()=>{
 const check = ()=>{
   chrome.storage.sync.get(['apikey','host','msg'], function(data) {
     if(!data.apikey){
-      tipMsg.value = '检测到未设置 apikey，请点击右上角插件图标进行设置，apikey 获取方式:https://platform.openai.com/account/api-keys'
+      tipMsg.value = '检测到未设置 apikey，请点击浏览器右上角插件图标进行设置，apikey 获取方式:https://platform.openai.com/account/api-keys'
       return
     }
     if(!data.host){
-      tipMsg.value = '检测到未设置 host，请点击右上角插件图标进行设置'
+      tipMsg.value = '检测到未设置 host，请点击浏览器右上角插件图标进行设置'
       return
     }
 

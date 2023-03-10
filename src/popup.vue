@@ -8,23 +8,32 @@
         v-model:value="state.apikey"
         addon-before="openai apikey"
         placeholder="please input openai apikey"
+        class="mt-16"
       />
       <a-input
         v-model:value="state.host"
+        class="mt-16"
         addon-before="openai host"
         placeholder="please input host"
       />
       <a-input
         v-model:value="state.msg"
         addon-before="引导语"
+        class="mt-16"
         placeholder="please input first message"
       />
-      <a-button
-        type="primary"
-        @click="submit"
+      <p>引导语是划词后，跟chatGpt聊天的第一句话的句首，默认为'翻译成中文:'</p>
+      <div
+        style="display: flex;justify-content: center;"
+        class="mt-16"
       >
-        sure
-      </a-button>
+        <a-button
+          type="primary"
+          @click="submit"
+        >
+          save
+        </a-button>
+      </div>
     </div>
   </div>
 </template>
@@ -78,7 +87,9 @@ const submit=()=>{
           color:#fff;
       }
 
-      
+      .mt-16{
+        margin-top:16px;
+      }
   }
 
   </style>
