@@ -1,7 +1,7 @@
 <template>
   <div class="ai-chat-icon-panel">
     <div class="toolbar">
-      AI翻译  powered by openai chatGpt
+      AI-chat  powered by openai chatGpt
     </div>
     <div>
       <a-input
@@ -40,12 +40,10 @@ const state = reactive({
   msg:'翻译成中文:'
 })
 
-const insert = (key,flag=false)=>{
+const insert = (key)=>{
   chrome.storage.sync.get(key, function(data) {
-    console.log(data.key);
-    flag && alert(data.key)
-    if(data.key){
-      state[key] = data.key
+    if(data[key]){
+      state[key] = data[key]
     }
   });
 }
@@ -58,8 +56,6 @@ onMounted(()=>{
   
 const submit=()=>{
   chrome.storage.sync.set(state, function() {
-    console.log('state is set');
-    insert('apikey',true)
     alert('success')
   });
 }

@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
   
-    "name": "AI翻译",
-    "description": "AI翻译是一款划词翻译拓展，利用 chatGpt api 进行翻译，支持聊天",
+    "name": "AI-chat",
+    "description": "AI-chat是一款划词翻译拓展，利用 chatGpt api 进行翻译，支持聊天",
     "version": "1.0",
   
     "action": {

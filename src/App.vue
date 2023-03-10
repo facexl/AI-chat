@@ -12,7 +12,7 @@
     <img
       class="icon"
       :src="iconimgUrl"
-      alt="AI翻译图标"
+      alt="AI-chat图标"
       :class="{
         rotate:useRotate
       }"

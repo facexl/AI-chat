@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite  --config vite.content.config.js",
     "build": "vue-tsc --noEmit && vite build --config vite.content.config.js && vite build --config vite.popup.config.js",
     "preview": "vite preview"
   },

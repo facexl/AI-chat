@@ -1,7 +1,7 @@
 <template>
   <div class="ai-chat-icon-panel">
     <div class="toolbar">
-      AI翻译  powered by openai chatGpt
+      AI-chat  powered by openai chatGpt
     </div>
     <div
       ref="chatPanle"
@@ -54,6 +54,10 @@ const textarea = ref()
 const chatPanle = ref()
 let reqing = ref(false)
 
+let apikey:string = '';
+let host:string = '';
+
+
 watch(tipMsg,()=>{
   showTip.value = true
   setTimeout(()=>{
@@ -67,8 +71,36 @@ const msgs = ref([
 ])
 
 onMounted(()=>{
-  req()
+  check()
 })
+
+const check = ()=>{
+  chrome.storage.sync.get(['apikey','host','msg'], function(data) {
+    if(!data.apikey){
+      tipMsg.value = '检测到未设置 apikey，请点击右上角插件图标进行设置，apikey 获取方式:https://platform.openai.com/account/api-keys'
+      return
+    }
+    if(!data.host){
+      tipMsg.value = '检测到未设置 host，请点击右上角插件图标进行设置'
+      return
+    }
+
+    apikey = data.apikey
+
+    host = data.host
+
+    let pre_msg = props.select
+
+    if(data.msg){
+      pre_msg = data.msg+props.select
+    }
+
+    msgs.value.push({ role: 'user', content: pre_msg as string })
+
+    req()
+  });
+  
+}
 
 watch(msgs,()=>{
   nextTick(()=>{
@@ -100,12 +132,12 @@ const req = async ()=>{
 
     const res = await fetch(
     //   `${config.host}/v1/chat/completions`
-      `https://api.openai.com/v1/chat/completions`
+      `${host}/v1/chat/completions`
       , {
         method: 'POST',
         headers:{
           'Content-Type': 'application/json',
-        //   Authorization: `Bearer ${config.apikey}`,
+          Authorization: `Bearer ${apikey}`,
         //   Authorization: `Bearer 123`,
         },
         body: JSON.stringify({
