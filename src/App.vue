@@ -104,6 +104,8 @@ const mouseover = ()=>{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  font-size: 16px;
+  text-size-adjust: 100% !important; 
     position: absolute;
     z-index:2147483647;
     background-color: #fff;

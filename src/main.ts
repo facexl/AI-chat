@@ -12,14 +12,14 @@ const prod = ()=>{
         <link href="${chrome.runtime.getURL('style.css')}" rel="stylesheet">
         <div id="ai-chat"></div>
         `
-  document.body.insertBefore(el, null);
+  document.documentElement.insertBefore(el, null);
   createApp(App).mount((el.shadowRoot as any).getElementById('ai-chat'))
 }
 
 const dev = ()=>{
   const el = document.createElement('div')
   el.id = 'ai-chat'
-  document.body.insertBefore(el, null);
+  document.documentElement.insertBefore(el, null);
   createApp(App).mount(el)
 }
 
