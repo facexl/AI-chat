@@ -33,7 +33,7 @@
       <span class="error">{{ tipMsg }}</span>
       <a-textarea
         ref="textarea"
-        v-model:value="input"
+        v-model="input"
         :rows="4"
         placeholder="可以继续聊天哟"
         @keydown.enter="send"
@@ -74,30 +74,39 @@ onMounted(()=>{
 })
 
 const check = ()=>{
-  chrome.storage.sync.get(['apikey','host','msg'], function(data) {
-    if(!data.apikey){
-      tipMsg.value = '检测到未设置 apikey，请点击浏览器右上角插件图标进行设置，apikey 获取方式:https://platform.openai.com/account/api-keys'
-      return
-    }
-    if(!data.host){
-      tipMsg.value = '检测到未设置 host，请点击浏览器右上角插件图标进行设置'
-      return
-    }
+  import.meta.env.PROD?
+    chrome.storage.sync.get(['apikey','host','msg'], function(data) {
+      if(!data.apikey){
+        tipMsg.value = '检测到未设置 apikey，请点击浏览器右上角插件图标进行设置，apikey 获取方式:https://platform.openai.com/account/api-keys'
+        return
+      }
+      if(!data.host){
+        tipMsg.value = '检测到未设置 host，请点击浏览器右上角插件图标进行设置'
+        return
+      }
 
-    apikey = data.apikey
+      apikey = data.apikey
 
-    host = data.host
+      host = data.host
 
-    let pre_msg = props.select
+      let pre_msg = props.select
 
-    if(data.msg){
-      pre_msg = data.msg+props.select
-    }
+      if(data.msg){
+        pre_msg = data.msg+props.select
+      }
 
-    msgs.value.push({ role: 'user', content: pre_msg as string })
+      msgs.value.push({ role: 'user', content: pre_msg as string })
 
-    req()
-  });
+      req()
+    }):(()=>{
+      msgs.value.push({ role: 'user', content: `翻译成中文:`+props.select as string })
+
+      //   apikey = config.apikey
+
+      //   host = config.host
+
+      req()
+    })()
   
 }
 
@@ -173,7 +182,7 @@ const req = async ()=>{
 
 }
 </script>
-<style lang="less" scoped>
+<style lang="less">
 .ai-chat-icon-panel{
     .chat-panel{
         height:252px;

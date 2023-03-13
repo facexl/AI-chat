@@ -52,11 +52,12 @@ const style = ref({
 
 const down = (event)=>{
   const target = showtrans.value?panel.value.$el:icon.value;
-  const isClickInsideTargetDiv = target?.contains(event.target);
+  // shadow dom 和 普通 dom 这里判断不一样
+  const isClickInsideTargetDiv = import.meta.env.PROD?event.composedPath().includes(target):target?.contains(event.target);
   if (!isClickInsideTargetDiv) {
     showicon.value = false
     showtrans.value = false
-    document.body.removeEventListener('mousedown',down)
+    document.removeEventListener('mousedown',down)
   }
 }
 onMounted(()=>{
@@ -75,7 +76,7 @@ onMounted(()=>{
           top:y.value+'px'
         }
         setTimeout(()=>{
-          document.body.addEventListener('mousedown',down,false)
+          document.addEventListener('mousedown',down,false)
         },0)
       }
     },0)
@@ -93,7 +94,7 @@ const mouseover = ()=>{
 }
 
 </script>
-<style lang="less" scoped>
+<style lang="less">
 .ai-chat-icon{
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
