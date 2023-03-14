@@ -62,6 +62,7 @@ const icon = ref()
 
 const panel = ref()
 
+
 const isProd = import.meta.env.PROD
 
 let timer;
@@ -128,6 +129,7 @@ const mouseover = ()=>{
 
 </script>
 <style lang="less">
+
 .ai-chat-container{
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -146,27 +148,10 @@ const mouseover = ()=>{
     cursor: pointer;
     .icon{
         width: 30px;
-        // &:hover{
-        //     animation: rotate 1s infinite linear;
-        // }
     }
     .rotate{
         animation: rotate 1s infinite linear;
     }
-}
-.ai-chat-container-panel{
-    position: absolute;
-    z-index:2147483647;
-    left:40px;
-    top:0;
-    width:450px;
-    height:380px;
-    background-color: #fff;
-    // user-select: none;
-    transition: width .4s,height .4s,opacity .4s,top .4s cubic-bezier(.55,.82,.63,.95),left .4s cubic-bezier(.4,.9,.71,1.02);
-    border-radius: 6px;
-    background-color: #fff;
-    box-shadow: rgb(0 0 0 / 80%) 0 4px 23px -6px;
 }
 
 @keyframes rotate {

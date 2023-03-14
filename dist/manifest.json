@@ -9,6 +9,16 @@
       "default_icon": "icon.png",
       "default_popup": "popup.html"
     },
+
+    "icons":{
+        "16":"icon.png",
+        "32":"icon.png"
+    },
+
+    "background": {
+        "service_worker": "background.js"
+    },
+    
     "options_ui": {
       "page": "popup.html"
     },
@@ -28,7 +38,8 @@
   
   
     "permissions": [
-      "storage"
+      "storage",
+      "contextMenus"
     ],
   
     "host_permissions": ["https://*.openai.com/"]

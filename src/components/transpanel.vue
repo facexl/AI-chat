@@ -1,7 +1,18 @@
 <template>
-  <div class="ai-chat-icon-panel">
+  <div
+    class="ai-chat-container-panel"
+    :class="{
+      'ai-chat-container-panel-dark':isDark
+    }"
+  >
     <div class="toolbar">
-      AI-chat  powered by openai chatGpt
+      <span class="title">AI-chat  powered by openai chatGpt</span>
+      <div class="menus">
+        <span @click="toogle">{{ isDark?'dark':'light' }}</span>
+        <span>设置</span>
+        <span>最大化</span>
+        <span>关闭</span>
+      </div>
     </div>
     <div
       ref="chatPanle"
@@ -30,6 +41,7 @@
       <a-textarea
         ref="textarea"
         v-model:value="input"
+        class="user-input-textarea"
         :rows="4"
         placeholder="可以继续聊天哟"
         @keydown.enter="send"
@@ -58,6 +70,9 @@ const chatPanle = ref()
 
 const reqing = ref(false)
 
+const isDark = ref(false)
+
+
 
 let apikey:string = '';
 
@@ -80,9 +95,13 @@ onMounted(()=>{
   check()
 })
 
+const toogle = ()=>{
+  isDark.value = !isDark.value
+}
+
 const check = ()=>{
   import.meta.env.PROD?
-    chrome.storage.sync.get(['apikey','host','msg'], function(data) {
+    chrome.storage.sync.get(['apikey','host','msg','isDark'], function(data) {
       if(!data.apikey){
         tipMsg.value = '检测到未设置 apikey,请点击浏览器右上角插件图标进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
 
@@ -93,6 +112,10 @@ const check = ()=>{
         tipMsg.value = '检测到未设置 host,请点击浏览器右上角插件图标进行设置'
 
         return
+      }
+
+      if(data.isDark){
+        isDark.value = true
       }
 
       apikey = data.apikey
@@ -251,7 +274,29 @@ const req = async ()=>{
 }
 </script>
 <style lang="less">
-.ai-chat-icon-panel{
+.ai-chat-container-panel{
+    --ai-chat-bg:#fff;
+    --ai-chat-deep-bg:#f3f3f3;
+    --ai-chat-font-color:#000;
+}
+.ai-chat-container-panel-dark{
+    --ai-chat-bg:#1e1e20;
+    --ai-chat-deep-bg:#101014;
+    --ai-chat-font-color:#fff;
+}
+.ai-chat-container-panel{
+    position: absolute;
+    z-index:2147483647;
+    left:40px;
+    top:0;
+    width:450px;
+    height:380px;
+    // user-select: none;
+    transition: width .4s,height .4s,opacity .4s,top .4s cubic-bezier(.55,.82,.63,.95),left .4s cubic-bezier(.4,.9,.71,1.02);
+    border-radius: 6px;
+    box-shadow: rgb(0 0 0 / 80%) 0 4px 23px -6px;
+    background-color: var(--ai-chat-deep-bg);
+    transition: all .3s;
     .chat-panel{
         height:252px;
         overflow-y: scroll;
@@ -259,7 +304,7 @@ const req = async ()=>{
         -ms-overflow-style: none; /* IE 兼容性 */
         .item{
             padding:8px;
-            color:#000;
+            color:var(--ai-chat-font-color);
             cursor: text;
             .dots {
                 position: relative;
@@ -273,14 +318,14 @@ const req = async ()=>{
             }
         }
         .Q{
-            background-color: #f3f3f3;
+            background-color: var(--ai-chat-bg);
             .tip{
                 color:red;
                 font-weight: bold;
             }
         }
         .A{
-            background-color: #fff;
+            background-color: var(--ai-chat-deep-bg);
             .tip{
                 color:blue;
                 font-weight: bold;
@@ -290,7 +335,7 @@ const req = async ()=>{
     .toolbar{
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         height: 30px;
         padding: 0 3px;
         background-color: #5caf9e;
@@ -308,7 +353,13 @@ const req = async ()=>{
             color:red;
         }
     }
+    .user-input-textarea{
+        background-color: var(--ai-chat-bg);
+    }
     
+} 
+.ai-chat-container-panel-dark .user-input-textarea{
+    border: none;
 }
 ::-webkit-scrollbar {
     width: 0;
