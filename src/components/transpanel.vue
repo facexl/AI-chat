@@ -46,7 +46,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-// import config from '/config'
+import config from '../../config'
 import { createParser } from 'eventsource-parser'
 const props = defineProps({
   select:String
@@ -105,13 +105,13 @@ const check = ()=>{
 
       req()
     }):(()=>{
+
       msgs.value.push({ role: 'user', content: `翻译成中文:`+props.select as string })
-
-      //   apikey = config.apikey
-
-      //   host = config.host
-
+      
+      apikey = config.apikey as string
+      host = config.host as string
       req()
+
     })()
   
 }

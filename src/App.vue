@@ -1,11 +1,14 @@
 
 <template>
-  <div v-if="!isProd">
+  <div
+    v-if="!isProd"
+    style="position: absolute;left:40%;top:40%;line-height: 1.5;"
+  >
     <div>
-      hello my name is xl
+      this is dev mode
     </div>
-    <div>are you ok</div>
-    <div>are you kidding me</div>
+    <div>you can select this text</div>
+    <div>Don't forget to disable chrome extensions</div>
   </div>
 
   <div
