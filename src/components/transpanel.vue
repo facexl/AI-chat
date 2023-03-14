@@ -23,14 +23,6 @@
           class="light-line"
         />
       </div>
-      <!-- <div
-        v-show="reqing"
-        class="item A"
-        style="color:#5caf9e"
-      >
-        <span class="tip">A</span>
-        <b style="margin-left: 5px;">Loading</b><span class="dots" />
-      </div> -->
     </div>
     
     <div class="user-input">
@@ -337,21 +329,6 @@ const req = async ()=>{
     }
     100%{
         content: "_";
-    }
-}
-
-@keyframes dots {
-    0%{
-        content: ".";
-    }
-    25% {
-        content: "..";
-    }
-    75% {
-        content: "...";
-    }
-    100% {
-        content: "..";
     }
 }
 </style>

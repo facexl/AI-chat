@@ -14,7 +14,7 @@
   <div
     v-show="showicon"
     ref="icon"
-    class="ai-chat-icon"
+    class="ai-chat-container"
     :style="style"
   >
     <img
@@ -31,7 +31,7 @@
     <transpanel
       v-if="showtrans"
       ref="panel"
-      class="ai-chat-icon-panel"
+      class="ai-chat-container-panel"
       :select="selectString"
     />
   </div>
@@ -128,7 +128,7 @@ const mouseover = ()=>{
 
 </script>
 <style lang="less">
-.ai-chat-icon{
+.ai-chat-container{
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -137,7 +137,7 @@ const mouseover = ()=>{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  font-size: 16px;
+  font-size: 14px;
   text-size-adjust: 100% !important; 
     position: absolute;
     z-index:2147483647;
@@ -154,7 +154,7 @@ const mouseover = ()=>{
         animation: rotate 1s infinite linear;
     }
 }
-.ai-chat-icon-panel{
+.ai-chat-container-panel{
     position: absolute;
     z-index:2147483647;
     left:40px;
