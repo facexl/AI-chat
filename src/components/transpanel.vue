@@ -47,25 +47,34 @@
 </template>
 <script lang="ts" setup>
 import config from '../../config'
+
 import { createParser } from 'eventsource-parser'
+
 const props = defineProps({
   select:String
 })
 
 const input = ref('')
+
 const showTip = ref(false)
+
 const tipMsg = ref()
+
 const textarea = ref()
+
 const chatPanle = ref()
+
 const reqing = ref(false)
 
 
 let apikey:string = '';
+
 let host:string = '';
 
 
 watch(tipMsg,()=>{
   showTip.value = true
+
   setTimeout(()=>{
     showTip.value = false
   },3000)
@@ -84,10 +93,13 @@ const check = ()=>{
     chrome.storage.sync.get(['apikey','host','msg'], function(data) {
       if(!data.apikey){
         tipMsg.value = '检测到未设置 apikey,请点击浏览器右上角插件图标进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
+
         return
       }
+
       if(!data.host){
         tipMsg.value = '检测到未设置 host,请点击浏览器右上角插件图标进行设置'
+
         return
       }
 
@@ -107,11 +119,12 @@ const check = ()=>{
     }):(()=>{
 
       msgs.value.push({ role: 'user', content: `翻译成中文:`+props.select as string })
-      
-      apikey = config.apikey as string
-      host = config.host as string
-      req()
 
+      apikey = config.apikey as string
+
+      host = config.host as string
+      
+      req()
     })()
   
 }
@@ -127,15 +140,20 @@ watch(msgs,()=>{
 const send = ()=>{
   if(reqing.value){
     tipMsg.value = 'please wait'
+
     return 
   }
+
   if(input.value){
     msgs.value.push({
       role:'user',
       content:input.value
     })
+
     input.value = ''
+
     textarea.value.blur()
+
     req()
   }
 }
@@ -146,7 +164,9 @@ const req = async ()=>{
     role:'assistant',
     content:''
   })
+
   reqing.value = true
+
   try{
     const res = await fetch(`${host}/v1/chat/completions`, {
       method: 'POST',
@@ -165,28 +185,40 @@ const req = async ()=>{
         presence_penalty: 1,
       })
     })
+
     if (res.status !== 200) {
       const { error } = await res.json()
+
       tipMsg.value = error.message
+
       return
     }
+
     const reader = (res.body as ReadableStream).getReader();
 
     const parser = createParser((event) => {
       if (event.type === 'event') {
         const d = event.data as any
+
         console.log(d)
+
         if(d==='[DONE]'){
           reqing.value = false
+
           return
         }
+
         const target = JSON.parse(d).choices[0]
+
         const { delta } = target
+
         if(delta.role){
           return
         }
+
         if(delta.content){
           const msg = msgs.value[msgs.value.length-1]
+
           msgs.value.splice(msgs.value.length-1,1,{
             role:msg.role,
             content:(msg.content+delta.content).trim()
@@ -195,76 +227,36 @@ const req = async ()=>{
       
       }
     })
+
     // 读取数据
     function read() {
       reader.read().then(({ done, value }) => {
         if (done) {
           reqing.value = false
+
           console.log('读取完成');
+
           return;
         }
+
         parser.feed(new TextDecoder('utf-8').decode(value))
+
         // 递归继续读取数据
         read();
       });
-    }  
+    }
+  
     read();
   }catch(err){
     console.log(err)
+
     tipMsg.value = 'internet connect err'
+
     reqing.value = false
   }
 
   
 }
-
-// const req = async ()=>{
-//   reqing.value = true
-//   try{
-
-//     const res = await fetch(
-//     //   `${config.host}/v1/chat/completions`
-//       `${host}/v1/chat/completions`
-//       , {
-//         method: 'POST',
-//         headers:{
-//           'Content-Type': 'application/json',
-//           Authorization: `Bearer ${apikey}`,
-//         //   Authorization: `Bearer 123`,
-//         },
-//         body: JSON.stringify({
-//           model: 'gpt-3.5-turbo',
-//           messages: msgs.value,
-//           temperature: 0,
-//           max_tokens: 1000,
-//           top_p: 1,
-//           frequency_penalty: 1,
-//           presence_penalty: 1,
-//         }),
-//       })
-//     reqing.value = false
-//     if (res.status !== 200) {
-//       const { error } = await res.json()
-//       tipMsg.value = error.message
-//       return
-//     }
-//     const { choices } = await res.json()
-//     if (!choices || choices.length === 0) {
-//       tipMsg.value = 'NO RESULT'
-//       return
-//     }
-//     let targetTxt = choices[0].message.content.trim()
-//     msgs.value.push({
-//       role:'assistant',
-//       content:targetTxt
-//     })
-//   }catch(err){
-//     console.log(err)
-//     tipMsg.value = 'internet connect err'
-//     reqing.value = false
-//   }
-
-// }
 </script>
 <style lang="less">
 .ai-chat-icon-panel{

@@ -41,19 +41,31 @@
 <script setup lang="ts"> 
 
 import { useMouse } from '@vueuse/core'
+
 import transpanel from './components/transpanel.vue'
+
 const iconimgUrl = ref('/icon.png')
+
 if(chrome && chrome.runtime){
   iconimgUrl.value = chrome.runtime.getURL('/icon.png')
 }
+
 const showicon = ref(false)
+
 const showtrans = ref(false)
+
 const selectString = ref('')
+
 const useRotate = ref()
+
 const icon = ref()
+
 const panel = ref()
+
 const isProd = import.meta.env.PROD
+
 let timer;
+
 const style = ref({
   left:'',
   top:''
@@ -61,14 +73,19 @@ const style = ref({
 
 const down = (event)=>{
   const target = showtrans.value?panel.value.$el:icon.value;
+
   // shadow dom 和 普通 dom 这里判断不一样
   const isClickInsideTargetDiv = import.meta.env.PROD?event.composedPath().includes(target):target?.contains(event.target);
+
   if (!isClickInsideTargetDiv) {
     showicon.value = false
+
     showtrans.value = false
+
     document.removeEventListener('mousedown',down)
   }
 }
+
 onMounted(()=>{
 
   const { x, y } = useMouse()
@@ -76,14 +93,19 @@ onMounted(()=>{
   document.addEventListener('mouseup',()=>{ 
     setTimeout(()=>{
       const selectedText = document?.getSelection()?.toString();
+
       if(selectedText && selectedText.length > 0 && !showicon.value) {
         console.log(selectedText)
+
         showicon.value = true
+
         selectString.value = selectedText
+
         style.value = {
           left:x.value+'px',
           top:y.value+'px'
         }
+
         setTimeout(()=>{
           document.addEventListener('mousedown',down,false)
         },0)
@@ -94,7 +116,9 @@ onMounted(()=>{
 
 const mouseover = ()=>{
   useRotate.value = true
+
   clearTimeout(timer)
+
   timer = setTimeout(_=>{
     if(useRotate.value && !showtrans.value){
       showtrans.value = true
