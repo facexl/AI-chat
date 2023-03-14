@@ -33,14 +33,5 @@ export default {
   },
   define: {
     'process.env.NODE_ENV': '"production"'
-  },
-  build: {
-    lib:{
-      entry: path.resolve(__dirname, 'src/main.ts'),
-      name: 'aichat',
-      formats:['iife'],
-      // the proper extensions will be added
-      fileName: 'aichat',
-    }
   }
 }
