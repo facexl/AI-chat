@@ -12,6 +12,7 @@
     "@vueuse/core": "^9.0.2",
     "ant-design-vue": "^3.2.10",
     "axios": "^0.27.2",
+    "eventsource-parser": "^0.1.0",
     "vue": "^3.2.45"
   },
   "devDependencies": {

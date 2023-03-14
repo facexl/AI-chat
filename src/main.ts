@@ -1,9 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 
-
-
-
 const prod = ()=>{
   const el = document.createElement('div')
   const shadow = el.attachShadow({mode: 'open'})

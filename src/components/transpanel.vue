@@ -18,22 +18,26 @@
       >
         <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
         {{ item.content }}
+        <span
+          v-show="index===msgs.length-2 && reqing"
+          class="light-line"
+        />
       </div>
-      <div
+      <!-- <div
         v-show="reqing"
         class="item A"
         style="color:#5caf9e"
       >
         <span class="tip">A</span>
         <b style="margin-left: 5px;">Loading</b><span class="dots" />
-      </div>
+      </div> -->
     </div>
     
     <div class="user-input">
       <span class="error">{{ tipMsg }}</span>
       <a-textarea
         ref="textarea"
-        v-model="input"
+        v-model:value="input"
         :rows="4"
         placeholder="可以继续聊天哟"
         @keydown.enter="send"
@@ -43,6 +47,7 @@
 </template>
 <script lang="ts" setup>
 // import config from '/config'
+import { createParser } from 'eventsource-parser'
 const props = defineProps({
   select:String
 })
@@ -52,7 +57,8 @@ const showTip = ref(false)
 const tipMsg = ref()
 const textarea = ref()
 const chatPanle = ref()
-let reqing = ref(false)
+const reqing = ref(false)
+
 
 let apikey:string = '';
 let host:string = '';
@@ -77,11 +83,11 @@ const check = ()=>{
   import.meta.env.PROD?
     chrome.storage.sync.get(['apikey','host','msg'], function(data) {
       if(!data.apikey){
-        tipMsg.value = '检测到未设置 apikey，请点击浏览器右上角插件图标进行设置，apikey 获取方式:https://platform.openai.com/account/api-keys'
+        tipMsg.value = '检测到未设置 apikey,请点击浏览器右上角插件图标进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
         return
       }
       if(!data.host){
-        tipMsg.value = '检测到未设置 host，请点击浏览器右上角插件图标进行设置'
+        tipMsg.value = '检测到未设置 host,请点击浏览器右上角插件图标进行设置'
         return
       }
 
@@ -134,53 +140,131 @@ const send = ()=>{
   }
 }
 
+
 const req = async ()=>{
+  msgs.value.push({
+    role:'assistant',
+    content:''
+  })
   reqing.value = true
   try{
-
-    const res = await fetch(
-    //   `${config.host}/v1/chat/completions`
-      `${host}/v1/chat/completions`
-      , {
-        method: 'POST',
-        headers:{
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apikey}`,
-        //   Authorization: `Bearer 123`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: msgs.value,
-          temperature: 0,
-          max_tokens: 1000,
-          top_p: 1,
-          frequency_penalty: 1,
-          presence_penalty: 1,
-        }),
+    const res = await fetch(`${host}/v1/chat/completions`, {
+      method: 'POST',
+      headers:{
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apikey}`,
+      },
+      body: JSON.stringify({
+        stream: true,
+        model: 'gpt-3.5-turbo',
+        messages: msgs.value,
+        temperature: 0,
+        max_tokens: 1000,
+        top_p: 1,
+        frequency_penalty: 1,
+        presence_penalty: 1,
       })
-    reqing.value = false
+    })
     if (res.status !== 200) {
       const { error } = await res.json()
       tipMsg.value = error.message
       return
     }
-    const { choices } = await res.json()
-    if (!choices || choices.length === 0) {
-      tipMsg.value = 'NO RESULT'
-      return
-    }
-    let targetTxt = choices[0].message.content.trim()
-    msgs.value.push({
-      role:'assistant',
-      content:targetTxt
+    const reader = (res.body as ReadableStream).getReader();
+
+    const parser = createParser((event) => {
+      if (event.type === 'event') {
+        const d = event.data as any
+        console.log(d)
+        if(d==='[DONE]'){
+          reqing.value = false
+          return
+        }
+        const target = JSON.parse(d).choices[0]
+        const { delta } = target
+        if(delta.role){
+          return
+        }
+        if(delta.content){
+          const msg = msgs.value[msgs.value.length-1]
+          msgs.value.splice(msgs.value.length-1,1,{
+            role:msg.role,
+            content:(msg.content+delta.content).trim()
+          })
+        }
+      
+      }
     })
+    // 读取数据
+    function read() {
+      reader.read().then(({ done, value }) => {
+        if (done) {
+          reqing.value = false
+          console.log('读取完成');
+          return;
+        }
+        parser.feed(new TextDecoder('utf-8').decode(value))
+        // 递归继续读取数据
+        read();
+      });
+    }  
+    read();
   }catch(err){
     console.log(err)
     tipMsg.value = 'internet connect err'
     reqing.value = false
   }
 
+  
 }
+
+// const req = async ()=>{
+//   reqing.value = true
+//   try{
+
+//     const res = await fetch(
+//     //   `${config.host}/v1/chat/completions`
+//       `${host}/v1/chat/completions`
+//       , {
+//         method: 'POST',
+//         headers:{
+//           'Content-Type': 'application/json',
+//           Authorization: `Bearer ${apikey}`,
+//         //   Authorization: `Bearer 123`,
+//         },
+//         body: JSON.stringify({
+//           model: 'gpt-3.5-turbo',
+//           messages: msgs.value,
+//           temperature: 0,
+//           max_tokens: 1000,
+//           top_p: 1,
+//           frequency_penalty: 1,
+//           presence_penalty: 1,
+//         }),
+//       })
+//     reqing.value = false
+//     if (res.status !== 200) {
+//       const { error } = await res.json()
+//       tipMsg.value = error.message
+//       return
+//     }
+//     const { choices } = await res.json()
+//     if (!choices || choices.length === 0) {
+//       tipMsg.value = 'NO RESULT'
+//       return
+//     }
+//     let targetTxt = choices[0].message.content.trim()
+//     msgs.value.push({
+//       role:'assistant',
+//       content:targetTxt
+//     })
+//   }catch(err){
+//     console.log(err)
+//     tipMsg.value = 'internet connect err'
+//     reqing.value = false
+//   }
+
+// }
 </script>
 <style lang="less">
 .ai-chat-icon-panel{
@@ -246,6 +330,24 @@ const req = async ()=>{
     width: 0;
     height: 0;
 }
+.light-line::after{
+    content: ' ';
+    animation: lightLine 1s infinite;
+    font-weight: bold;
+}
+
+@keyframes lightLine {
+    0%{
+        content: "_";
+    }
+    50%{
+        content: " ";
+    }
+    100%{
+        content: "_";
+    }
+}
+
 @keyframes dots {
     0%{
         content: ".";

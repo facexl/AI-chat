@@ -8,7 +8,8 @@
 
 ## Road Map  
 
-- [ ] 不依赖 ant-design-vue ( css 太多 容易污染 )  
-- [ ] css 命名问题 (也考虑 shodow dom)  
+- [x] 使用 shodow dom 避免 css 污染
 - [ ] popup.html ui 优化一下  
 - [ ] 翻译面板增加固钉、拖拽、放大效果  
+- [ ] 面板位置 不要跑出屏幕  
+- [ ] 切换到 stream 请求  

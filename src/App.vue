@@ -1,8 +1,13 @@
 
 <template>
-  <!-- <div>hello my name is xl</div>
-  <div>are you ok</div>
-  <div>are you kidding me</div> -->
+  <div v-if="!isProd">
+    <div>
+      hello my name is xl
+    </div>
+    <div>are you ok</div>
+    <div>are you kidding me</div>
+  </div>
+
   <div
     v-show="showicon"
     ref="icon"
@@ -44,6 +49,7 @@ const selectString = ref('')
 const useRotate = ref()
 const icon = ref()
 const panel = ref()
+const isProd = import.meta.env.PROD
 let timer;
 const style = ref({
   left:'',
