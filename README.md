@@ -14,6 +14,6 @@
 - [ ] 面板位置 不要跑出屏幕  
 - [x] 切换到 stream 请求  
 - [ ] 保留历史引导词条    
-- [ ] dark mode
+- [x] dark mode
 - [ ] tool bar 增加 set 按钮 
 - [ ] 右上角点击增加自助翻译  

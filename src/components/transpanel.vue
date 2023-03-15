@@ -9,9 +9,9 @@
       <span class="title">AI-chat  powered by openai chatGpt</span>
       <div class="menus">
         <span @click="toogle">{{ isDark?'dark':'light' }}</span>
-        <span>设置</span>
+        <!-- <span>设置</span>
         <span>最大化</span>
-        <span>关闭</span>
+        <span>关闭</span> -->
       </div>
     </div>
     <div
