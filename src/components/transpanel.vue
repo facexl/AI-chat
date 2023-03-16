@@ -14,38 +14,41 @@
         <span>关闭</span> -->
       </div>
     </div>
-    <div
-      ref="chatPanle"
-      class="chat-panel"
-    >
+    <!-- <setinfo /> -->
+    <div>
       <div
-        v-for="(item,index) in msgs.slice(1,10000000)"
-        :key="index"
-        class="item"
-        :class="{
-          Q:item.role==='user',
-          A:item.role==='assistant'
-        }"
+        ref="chatPanle"
+        class="chat-panel"
       >
-        <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
-        {{ item.content }}
-        <span
-          v-show="index===msgs.length-2 && reqing"
-          class="light-line"
+        <div
+          v-for="(item,index) in msgs.slice(1,10000000)"
+          :key="index"
+          class="item"
+          :class="{
+            Q:item.role==='user',
+            A:item.role==='assistant'
+          }"
+        >
+          <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
+          {{ item.content }}
+          <span
+            v-show="index===msgs.length-2 && reqing"
+            class="light-line"
+          />
+        </div>
+      </div>
+    
+      <div class="user-input">
+        <span class="error">{{ tipMsg }}</span>
+        <a-textarea
+          ref="textarea"
+          v-model:value="input"
+          class="user-input-textarea"
+          :rows="4"
+          placeholder="可以继续聊天哟"
+          @keydown.enter="send"
         />
       </div>
-    </div>
-    
-    <div class="user-input">
-      <span class="error">{{ tipMsg }}</span>
-      <a-textarea
-        ref="textarea"
-        v-model:value="input"
-        class="user-input-textarea"
-        :rows="4"
-        placeholder="可以继续聊天哟"
-        @keydown.enter="send"
-      />
     </div>
   </div>
 </template>
@@ -53,6 +56,7 @@
 import config from '../../config'
 
 import { createParser } from 'eventsource-parser'
+
 
 const props = defineProps({
   select:String

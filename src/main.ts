@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 
+import 'uno.css'
+
 import App from './App.vue'
 
 const prod = ()=>{

@@ -9,6 +9,8 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AButton: typeof import('ant-design-vue/es')['Button']
     AInput: typeof import('ant-design-vue/es')['Input']
+    ATextarea: typeof import('ant-design-vue/es')['Textarea']
+    Setinfo: typeof import('./src/components/setinfo.vue')['default']
     Transpanel: typeof import('./src/components/transpanel.vue')['default']
   }
 }

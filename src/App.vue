@@ -35,6 +35,11 @@
       :select="selectString"
     />
   </div>
+  <transpanel
+    ref="panel"
+    class="ai-chat-container-panel"
+    :select="selectString"
+  />
 </template>
 
 
