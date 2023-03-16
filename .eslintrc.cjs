@@ -17,6 +17,10 @@ module.exports ={
     'vue/require-default-prop':'off',
     'vue/prop-name-casing':'off',
     'vue/v-on-event-hyphenation':'off',
-    'padding-line-between-statements':[ "error", { "blankLine": "always", "prev": "*", "next": "*" } ]
+    'padding-line-between-statements':[ 
+      "error", 
+      { "blankLine": "always", "prev": "*", "next": "*" },
+      { "blankLine": "never", "prev": "import", "next": "import" }
+    ]
   },
 };

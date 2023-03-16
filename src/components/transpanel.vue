@@ -2,26 +2,34 @@
   <div
     class="ai-chat-container-panel"
     :class="{
-      'ai-chat-container-panel-dark':isDark
+      'ai-chat-container-panel-dark':state.isDark
     }"
+    :style="style"
   >
     <div class="toolbar">
       <span class="title">AI-chat  powered by openai chatGpt</span>
       <div class="menus">
-        <span @click="toogle">{{ isDark?'dark':'light' }}</span>
-        <!-- <span>设置</span>
-        <span>最大化</span>
+        <span
+          class="mr-4px"
+          @click="toogle"
+        >{{ !state.isDark?'dark':'light' }}</span>
+        <span @click="toogleSet">设置</span>
+        <!-- <span>最大化</span>
         <span>关闭</span> -->
       </div>
     </div>
-    <!-- <setinfo /> -->
+    <setinfo
+      v-if="state.showSetInfo"
+      @toogle="toogleSet"
+      @fresh="check"
+    />
     <div>
       <div
         ref="chatPanle"
         class="chat-panel"
       >
         <div
-          v-for="(item,index) in msgs.slice(1,10000000)"
+          v-for="(item,index) in msgs"
           :key="index"
           class="item"
           :class="{
@@ -32,17 +40,20 @@
           <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
           {{ item.content }}
           <span
-            v-show="index===msgs.length-2 && reqing"
+            v-show="index===msgs.length-1 && state.reqing"
             class="light-line"
           />
         </div>
       </div>
     
       <div class="user-input">
-        <span class="error">{{ tipMsg }}</span>
+        <span
+          v-if="state.showTip"
+          class="error"
+        >{{ state.tipMsg }}</span>
         <a-textarea
           ref="textarea"
-          v-model:value="input"
+          v-model:value="state.input"
           class="user-input-textarea"
           :rows="4"
           placeholder="可以继续聊天哟"
@@ -54,96 +65,104 @@
 </template>
 <script lang="ts" setup>
 import config from '../../config'
-
 import { createParser } from 'eventsource-parser'
 
-
 const props = defineProps({
-  select:String
+  select:String,
+  isPopup:Boolean,
+  style:Object
 })
 
-const input = ref('')
-
-const showTip = ref(false)
-
-const tipMsg = ref()
+const state = reactive({
+  input:'',
+  showTip:false,
+  tipMsg:'',
+  reqing:false,
+  isDark:false,
+  showSetInfo:false
+})
 
 const textarea = ref()
 
 const chatPanle = ref()
 
-const reqing = ref(false)
-
-const isDark = ref(false)
-
-
+const msgs = ref<{role:string,content:string}[]>([
+//   { role: 'system', content: 'be nice' }
+])
 
 let apikey:string = '';
 
 let host:string = '';
 
+const defaultMsg = `翻译成中文:`
 
-watch(tipMsg,()=>{
-  showTip.value = true
+watch(()=>state.tipMsg,()=>{
+  state.showTip = true
 
   setTimeout(()=>{
-    showTip.value = false
+    state.tipMsg = ''
+
+    state.showTip = false
   },3000)
 })
-
-const msgs = ref([
-  { role: 'system', content: 'be nice' }
-])
 
 onMounted(()=>{
   check()
 })
 
 const toogle = ()=>{
-  isDark.value = !isDark.value
+  state.isDark = !state.isDark
+}
+
+const toogleSet = ()=>{
+  state.showSetInfo = !state.showSetInfo
 }
 
 const check = ()=>{
   import.meta.env.PROD?
     chrome.storage.sync.get(['apikey','host','msg','isDark'], function(data) {
       if(!data.apikey){
-        tipMsg.value = '检测到未设置 apikey,请点击浏览器右上角插件图标进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
+        state.tipMsg = '检测到未设置 apikey,请点击右上角设置按钮进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
+
+        state.showSetInfo = true
 
         return
       }
 
       if(!data.host){
-        tipMsg.value = '检测到未设置 host,请点击浏览器右上角插件图标进行设置'
+        state.tipMsg = '检测到未设置 host,请点击右上角设置按钮进行设置'
+
+        state.showSetInfo = true
 
         return
       }
 
       if(data.isDark){
-        isDark.value = true
+        state.isDark = true
       }
 
       apikey = data.apikey
 
       host = data.host
-
-      let pre_msg = props.select
-
-      if(data.msg){
-        pre_msg = data.msg+props.select
+      
+      // 右上角弹窗直接聊天
+      if(props.isPopup){
+        return
       }
 
-      msgs.value.push({ role: 'user', content: pre_msg as string })
+      msgs.value.push({ role: 'user', content: (data.msg?(data.msg+props.select):(defaultMsg+props.select)) as string })
 
       req()
     }):(()=>{
 
-      msgs.value.push({ role: 'user', content: `翻译成中文:`+props.select as string })
+      msgs.value.push({ role: 'user', content: defaultMsg+props.select as string })
 
       apikey = config.apikey as string
 
       host = config.host as string
-      
+
       req()
+      
     })()
   
 }
@@ -157,19 +176,19 @@ watch(msgs,()=>{
 })
 
 const send = ()=>{
-  if(reqing.value){
-    tipMsg.value = 'please wait'
+  if(state.reqing){
+    state.tipMsg = 'please wait'
 
     return 
   }
 
-  if(input.value){
+  if(state.input){
     msgs.value.push({
       role:'user',
-      content:input.value
+      content:state.input
     })
 
-    input.value = ''
+    state.input = ''
 
     textarea.value.blur()
 
@@ -177,14 +196,13 @@ const send = ()=>{
   }
 }
 
-
 const req = async ()=>{
   msgs.value.push({
     role:'assistant',
     content:''
   })
 
-  reqing.value = true
+  state.reqing = true
 
   try{
     const res = await fetch(`${host}/v1/chat/completions`, {
@@ -208,7 +226,7 @@ const req = async ()=>{
     if (res.status !== 200) {
       const { error } = await res.json()
 
-      tipMsg.value = error.message
+      state.tipMsg = error.message
 
       return
     }
@@ -222,7 +240,7 @@ const req = async ()=>{
         console.log(d)
 
         if(d==='[DONE]'){
-          reqing.value = false
+          state.reqing = false
 
           return
         }
@@ -251,7 +269,7 @@ const req = async ()=>{
     function read() {
       reader.read().then(({ done, value }) => {
         if (done) {
-          reqing.value = false
+          state.reqing = false
 
           console.log('读取完成');
 
@@ -264,14 +282,14 @@ const req = async ()=>{
         read();
       });
     }
-  
+
     read();
   }catch(err){
     console.log(err)
 
-    tipMsg.value = 'internet connect err'
+    state.tipMsg = 'internet connect err'
 
-    reqing.value = false
+    state.reqing = false
   }
 
   
@@ -282,6 +300,7 @@ const req = async ()=>{
     --ai-chat-bg:#fff;
     --ai-chat-deep-bg:#f3f3f3;
     --ai-chat-font-color:#000;
+    --toolbar-height:30px;
 }
 .ai-chat-container-panel-dark{
     --ai-chat-bg:#1e1e20;
@@ -291,7 +310,9 @@ const req = async ()=>{
 .ai-chat-container-panel{
     position: absolute;
     z-index:2147483647;
-    left:40px;
+    box-sizing: border-box;
+    padding-top:var(--toolbar-height);
+    left:0;
     top:0;
     width:450px;
     height:380px;
@@ -340,16 +361,23 @@ const req = async ()=>{
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 30px;
+        height: var(--toolbar-height);
+        box-sizing: border-box;
         padding: 0 3px;
         background-color: #5caf9e;
         font-weight: bold;
         color:#fff;
+        position: absolute;
+        left:0;
+        right:0;
+        top:0;
+        z-index:999;
     }
     .user-input{
         width:100%;
         position: absolute;
         bottom:0;
+        z-index:1;
         .error{
             position: absolute;
             top: 0;

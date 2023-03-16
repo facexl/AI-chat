@@ -35,18 +35,17 @@
       :select="selectString"
     />
   </div>
-  <transpanel
+  <!-- <transpanel
     ref="panel"
     class="ai-chat-container-panel"
     :select="selectString"
-  />
+  /> -->
 </template>
 
 
 <script setup lang="ts"> 
 
 import { useMouse } from '@vueuse/core'
-
 import transpanel from './components/transpanel.vue'
 
 const iconimgUrl = ref('/icon.png')
