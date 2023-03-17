@@ -35,11 +35,11 @@
       :select="selectString"
     />
   </div>
-  <transpanel
+  <!-- <transpanel
     ref="panel"
     class="ai-chat-container-panel"
     :select="selectString"
-  />
+  /> -->
 </template>
 
 
@@ -47,6 +47,7 @@
 
 import { useMouse } from '@vueuse/core'
 import transpanel from './components/transpanel.vue'
+import { isProd } from './utils'
 
 const iconimgUrl = ref('/icon.png')
 
@@ -67,7 +68,7 @@ const icon = ref()
 const panel = ref()
 
 
-const isProd = import.meta.env.PROD
+
 
 let timer;
 
@@ -80,7 +81,7 @@ const down = (event)=>{
   const target = showtrans.value?panel.value.$el:icon.value;
 
   // shadow dom 和 普通 dom 这里判断不一样
-  const isClickInsideTargetDiv = import.meta.env.PROD?event.composedPath().includes(target):target?.contains(event.target);
+  const isClickInsideTargetDiv = isProd?event.composedPath().includes(target):target?.contains(event.target);
 
   if (!isClickInsideTargetDiv) {
     showicon.value = false

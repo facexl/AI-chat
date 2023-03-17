@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import 'uno.css'
 import App from './App.vue'
+import { isProd } from './utils'
 
 const prod = ()=>{
   const el = document.createElement('div')
@@ -30,4 +31,4 @@ const dev = ()=>{
 
 // prod()
 
-import.meta.env.PROD?prod():dev()
+isProd?prod():dev()

@@ -8,7 +8,7 @@
   >
     <div class="toolbar">
       <span class="title">AI-chat  powered by openai chatGpt</span>
-      <div class="menus">
+      <div class="menus cursor-pointer">
         <span
           class="mr-4px"
           @click="toogle"
@@ -29,7 +29,7 @@
         class="chat-panel"
       >
         <div
-          v-show="state.showSetTag"
+          v-if="state.showSetTag"
           class="tags-box p-8px"
         >
           <div class="font-500 mb-8px flex justify-between">
@@ -44,6 +44,9 @@
             :key="i"
             color="pink"
             class="cursor-pointer important-mb-8px"
+            closable
+            @close="deltags(i)"
+            @click="toogleTags(item)"
           >
             {{ item.content }}
           </a-tag>
@@ -64,7 +67,7 @@
           </a-input-group>
         </div>
         <div
-          v-for="(item,index) in msgsPainting"
+          v-for="(item,index) in msgs"
           :key="index"
           class="item"
           :class="{
@@ -109,12 +112,22 @@
 <script lang="ts" setup>
 import config from '../../config'
 import { createParser } from 'eventsource-parser'
+import { storage,isProd } from '../utils'
+
 
 const props = defineProps({
   select:String,
   isPopup:Boolean,
   style:Object
 })
+
+
+// constant
+let default_tag = `翻译成中文:`
+
+let apikey:string = '';
+
+let host:string = '';
 
 const state = reactive({
   input:'',
@@ -127,7 +140,6 @@ const state = reactive({
   tags:[
     {content:`翻译成中文:`},
     {content:`翻译成英文:`},
-    {content:`总结这段话:`},
     {content:`润色这段话:`},
   ],
   betag:''
@@ -143,11 +155,17 @@ const msgs = ref<msgItem[]>([
 //   { role: 'system', content: 'be nice' }
 ])
 
-let apikey:string = '';
+const setDefaultTag = async (target_tag)=>{
 
-let host:string = '';
+  if(isProd){
+    return await storage.set({
+      default_tag
+    })
+  }else{
 
-const defaultMsg = `翻译成中文:`
+    return (default_tag = target_tag)
+  }
+}
 
 watch(()=>state.tipMsg,()=>{
   state.showTip = true
@@ -167,24 +185,18 @@ watch(msgs,()=>{
   deep:true
 })
 
-const str = props!.select
+watch(()=>state.tags,(v)=>{
+  isProd && storage.set({
+    tags:v
+  })
+},{
+  deep:true
+})
 
-const msgsPainting = computed(()=>{
-  if(props.isPopup){
-    return msgs.value
-  }else{
-    const temp:msgItem[] = msgs.value.slice(0)
-
-    if(!temp.length){
-      return temp
-    }
-
-    temp[0].content = str as string
-
-    temp[0].tag = defaultMsg
-
-    return temp
-  }
+watch(()=>state.isDark,(v)=>{
+  isProd && storage.set({
+    isDark:v
+  })
 })
 
 onMounted(()=>{
@@ -201,6 +213,32 @@ const addTag = ()=>{
   }
 }
 
+const deltags = (i)=>{
+  state.tags.splice(i,1)
+}
+
+const toogleTags = async (item)=>{
+
+  if(state.reqing){
+    state.tipMsg = 'please wait'
+
+    return 
+  }
+
+  await setDefaultTag(item.content)
+
+  state.showSetTag = false
+
+  msgs.value.push({
+    role:'user',
+    content:props.select as string,
+    tag:item.content
+  })
+
+  req()
+
+}
+
 const toogle = ()=>{
   state.isDark = !state.isDark
 }
@@ -210,8 +248,8 @@ const toogleSet = ()=>{
 }
 
 const check = ()=>{
-  import.meta.env.PROD?
-    chrome.storage.sync.get(['apikey','host','msg','isDark'], function(data) {
+  isProd?
+    chrome.storage.sync.get(['apikey','host','default_tag','isDark','tags'], function(data) {
       if(!data.apikey){
         state.tipMsg = '检测到未设置 apikey,请点击右上角设置按钮进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
 
@@ -232,6 +270,10 @@ const check = ()=>{
         state.isDark = true
       }
 
+      if(data.tags){
+        state.tags = data.tags
+      }
+
       apikey = data.apikey
 
       host = data.host
@@ -241,12 +283,21 @@ const check = ()=>{
         return
       }
 
-      msgs.value.push({ role: 'user', content: (data.msg?(data.msg+props.select):(defaultMsg+props.select)) as string })
+      // to do use default_tag
+      msgs.value.push({ 
+        role: 'user', 
+        content: props.select as string,
+        tag:data.default_tag || default_tag
+      })
 
       req()
     }):(()=>{
 
-      msgs.value.push({ role: 'user', content: defaultMsg+props.select as string })
+      msgs.value.push({ 
+        role: 'user', 
+        content:props.select as string,
+        tag:default_tag
+      })
 
       apikey = config.apikey as string
 
@@ -297,7 +348,10 @@ const req = async ()=>{
       body: JSON.stringify({
         stream: true,
         model: 'gpt-3.5-turbo',
-        messages: msgs.value,
+        messages: msgs.value.map(it=>({
+          role:it.role,
+          content:it.tag?(it.tag+it.content):it.content
+        })),
         temperature: 0,
         max_tokens: 1000,
         top_p: 1,

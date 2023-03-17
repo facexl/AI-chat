@@ -36,6 +36,8 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { message } from 'ant-design-vue';
+import 'ant-design-vue/es/message/style/css';
   
 const state = reactive({
   apikey:'',
@@ -60,7 +62,6 @@ onMounted(()=>{
     
 const submit=()=>{
   chrome.storage.sync.set(state, function() {
-    alert('success')
 
     emits('toogle')
 
