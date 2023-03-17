@@ -13,7 +13,10 @@
           class="mr-4px"
           @click="toogle"
         >{{ !state.isDark?'dark':'light' }}</span>
-        <span @click="toogleSet">设置</span>
+        <span
+          class="mr-4px"
+          @click="toogleSet"
+        >设置</span>
         <!-- <span>最大化</span>
         <span>关闭</span> -->
       </div>
@@ -42,7 +45,7 @@
           <a-tag
             v-for="(item,i) in state.tags"
             :key="i"
-            color="pink"
+            :color="state.isDark?'#2db7f5':'pink'"
             class="cursor-pointer important-mb-8px"
             closable
             @close="deltags(i)"
@@ -78,7 +81,7 @@
           <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
           <a-tag
             v-if="item.tag"
-            color="green"
+            :color="state.isDark?'#87d068':'green'"
             class="cursor-pointer important-ml-4px"
             @click="state.showSetTag=true"
           >
@@ -250,6 +253,8 @@ const toogleSet = ()=>{
 const check = ()=>{
   isProd?
     chrome.storage.sync.get(['apikey','host','default_tag','isDark','tags'], function(data) {
+      console.log('chrome get what',data)
+
       if(!data.apikey){
         state.tipMsg = '检测到未设置 apikey,请点击右上角设置按钮进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
 
@@ -474,9 +479,9 @@ const req = async ()=>{
         overflow-y: scroll;
         scrollbar-width: none; /* Firefox 兼容性 */
         -ms-overflow-style: none; /* IE 兼容性 */
+        color:var(--ai-chat-font-color);
         .item{
             padding:8px;
-            color:var(--ai-chat-font-color);
             cursor: text;
             .dots {
                 position: relative;
@@ -492,14 +497,14 @@ const req = async ()=>{
         .Q{
             background-color: var(--ai-chat-bg);
             .tip{
-                color:red;
+                color:#f50;
                 font-weight: bold;
             }
         }
         .A{
             background-color: var(--ai-chat-deep-bg);
             .tip{
-                color:blue;
+                color:rgb(135, 208, 104);
                 font-weight: bold;
             }
         }
