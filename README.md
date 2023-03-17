@@ -11,11 +11,11 @@
 ## Road Map  
 
 - [x] 使用 shodow dom 避免 css 污染
-- [ ] popup.html ui 优化一下  
+- [x] popup.html ui 优化一下  
 - [ ] 翻译面板增加固钉、拖拽、放大效果  
 - [ ] 面板位置 不要跑出屏幕  
 - [x] 切换到 stream 请求  
-- [ ] 保留历史引导词条    
+- [x] 保留历史引导词条    
 - [x] dark mode
-- [ ] tool bar 增加 set 按钮 
-- [ ] 右上角点击增加自助翻译  
+- [x] tool bar 增加 set 按钮 
+- [x] 右上角点击增加自助翻译  
