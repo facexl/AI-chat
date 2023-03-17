@@ -29,7 +29,42 @@
         class="chat-panel"
       >
         <div
-          v-for="(item,index) in msgs"
+          v-show="state.showSetTag"
+          class="tags-box p-8px"
+        >
+          <div class="font-500 mb-8px flex justify-between">
+            <span>导语设置:</span>
+            <span
+              class="cursor-pointer"
+              @click="state.showSetTag=false"
+            >x</span>
+          </div>
+          <a-tag
+            v-for="(item,i) in state.tags"
+            :key="i"
+            color="pink"
+            class="cursor-pointer important-mb-8px"
+          >
+            {{ item.content }}
+          </a-tag>
+          <a-input-group compact>
+            <a-input
+              v-model:value="state.betag"
+              style="width: calc(100% - 100px)"
+              placeholder="请输入"
+              size="small"
+            />
+            <a-button
+              type="primary"
+              size="small"
+              @click="addTag"
+            >
+              添加导语
+            </a-button>
+          </a-input-group>
+        </div>
+        <div
+          v-for="(item,index) in msgsPainting"
           :key="index"
           class="item"
           :class="{
@@ -38,6 +73,14 @@
           }"
         >
           <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
+          <a-tag
+            v-if="item.tag"
+            color="green"
+            class="cursor-pointer important-ml-4px"
+            @click="state.showSetTag=true"
+          >
+            {{ item.tag }}
+          </a-tag>
           {{ item.content }}
           <span
             v-show="index===msgs.length-1 && state.reqing"
@@ -79,14 +122,24 @@ const state = reactive({
   tipMsg:'',
   reqing:false,
   isDark:false,
-  showSetInfo:false
+  showSetInfo:false,
+  showSetTag:false,
+  tags:[
+    {content:`翻译成中文:`},
+    {content:`翻译成英文:`},
+    {content:`总结这段话:`},
+    {content:`润色这段话:`},
+  ],
+  betag:''
 })
 
 const textarea = ref()
 
 const chatPanle = ref()
 
-const msgs = ref<{role:string,content:string}[]>([
+type msgItem = {role:string,content:string,tag?:string}
+
+const msgs = ref<msgItem[]>([
 //   { role: 'system', content: 'be nice' }
 ])
 
@@ -106,9 +159,47 @@ watch(()=>state.tipMsg,()=>{
   },3000)
 })
 
+watch(msgs,()=>{
+  nextTick(()=>{
+    chatPanle.value.scrollTop = 99999
+  })
+},{
+  deep:true
+})
+
+const str = props!.select
+
+const msgsPainting = computed(()=>{
+  if(props.isPopup){
+    return msgs.value
+  }else{
+    const temp:msgItem[] = msgs.value.slice(0)
+
+    if(!temp.length){
+      return temp
+    }
+
+    temp[0].content = str as string
+
+    temp[0].tag = defaultMsg
+
+    return temp
+  }
+})
+
 onMounted(()=>{
   check()
 })
+
+const addTag = ()=>{
+  if(state.betag.trim()){
+    state.tags.push({
+      content:state.betag.trim()
+    })
+
+    state.betag = ''
+  }
+}
 
 const toogle = ()=>{
   state.isDark = !state.isDark
@@ -166,14 +257,6 @@ const check = ()=>{
     })()
   
 }
-
-watch(msgs,()=>{
-  nextTick(()=>{
-    chatPanle.value.scrollTop = 99999
-  })
-},{
-  deep:true
-})
 
 const send = ()=>{
   if(state.reqing){
@@ -308,6 +391,16 @@ const req = async ()=>{
     --ai-chat-font-color:#fff;
 }
 .ai-chat-container-panel{
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    font-size: 14px;
+    text-size-adjust: 100% !important; 
     position: absolute;
     z-index:2147483647;
     box-sizing: border-box;

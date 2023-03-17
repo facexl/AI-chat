@@ -1,6 +1,7 @@
 <template>
   <div class="ai-chat-set-info absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center">
     <div class="w-400px">
+      <span>请输入您在 openai 申请的 apikey:</span>
       <a-input
         v-model:value="state.apikey"
         addon-before="openai apikey"
@@ -73,6 +74,7 @@ const submit=()=>{
 <style lang="less" scoped>
 .ai-chat-set-info{
     background-color: var(--ai-chat-bg);
+    color:var(--ai-chat-font-color);
     z-index:2;
 }
 </style>
