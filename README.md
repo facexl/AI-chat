@@ -12,10 +12,12 @@
 
 - [x] 使用 shodow dom 避免 css 污染
 - [x] popup.html ui 优化一下  
-- [ ] 翻译面板增加固钉、拖拽、放大效果  
+- [ ] 翻译面板增加固钉、拖拽  
+- [x] 增加放大全屏  
 - [ ] 面板位置 不要跑出屏幕  
 - [x] 切换到 stream 请求  
 - [x] 保留历史引导词条    
 - [x] dark mode
 - [x] tool bar 增加 set 按钮 
 - [x] 右上角点击增加自助翻译  
+- [ ] markdown 渲染回答  

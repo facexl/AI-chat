@@ -2,7 +2,8 @@
   <div
     class="ai-chat-container-panel"
     :class="{
-      'ai-chat-container-panel-dark':state.isDark
+      'ai-chat-container-panel-dark':state.isDark,
+      'full-screen':state.isFull
     }"
     :style="style"
   >
@@ -17,8 +18,8 @@
           class="mr-4px"
           @click="toogleSet"
         >设置</span>
-        <!-- <span>最大化</span>
-        <span>关闭</span> -->
+        <span @click="state.isFull=!state.isFull">{{ state.isFull?'最小化':'最大化' }}</span>
+        <!-- <span>关闭</span> -->
       </div>
     </div>
     <setinfo
@@ -26,89 +27,87 @@
       @toogle="toogleSet"
       @fresh="check"
     />
-    <div>
+    <div
+      ref="chatPanle"
+      class="chat-panel"
+    >
       <div
-        ref="chatPanle"
-        class="chat-panel"
+        v-if="state.showSetTag"
+        class="tags-box p-8px"
       >
-        <div
-          v-if="state.showSetTag"
-          class="tags-box p-8px"
-        >
-          <div class="font-500 mb-8px flex justify-between">
-            <span>导语设置:</span>
-            <span
-              class="cursor-pointer"
-              @click="state.showSetTag=false"
-            >x</span>
-          </div>
-          <a-tag
-            v-for="(item,i) in state.tags"
-            :key="i"
-            :color="state.isDark?'#2db7f5':'pink'"
-            class="cursor-pointer important-mb-8px"
-            closable
-            @close="deltags(i)"
-            @click="toogleTags(item)"
-          >
-            {{ item.content }}
-          </a-tag>
-          <a-input-group compact>
-            <a-input
-              v-model:value="state.betag"
-              style="width: calc(100% - 100px)"
-              placeholder="请输入"
-              size="small"
-            />
-            <a-button
-              type="primary"
-              size="small"
-              @click="addTag"
-            >
-              添加导语
-            </a-button>
-          </a-input-group>
-        </div>
-        <div
-          v-for="(item,index) in msgs"
-          :key="index"
-          class="item"
-          :class="{
-            Q:item.role==='user',
-            A:item.role==='assistant'
-          }"
-        >
-          <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
-          <a-tag
-            v-if="item.tag"
-            :color="state.isDark?'#87d068':'green'"
-            class="cursor-pointer important-ml-4px"
-            @click="state.showSetTag=true"
-          >
-            {{ item.tag }}
-          </a-tag>
-          {{ item.content }}
+        <div class="font-500 mb-8px flex justify-between">
+          <span>导语设置:</span>
           <span
-            v-show="index===msgs.length-1 && state.reqing"
-            class="light-line"
-          />
+            class="cursor-pointer"
+            @click="state.showSetTag=false"
+          >x</span>
         </div>
+        <a-tag
+          v-for="(item,i) in state.tags"
+          :key="i"
+          :color="state.isDark?'#2db7f5':'pink'"
+          class="cursor-pointer important-mb-8px"
+          closable
+          @close="deltags(i)"
+          @click="toogleTags(item)"
+        >
+          {{ item.content }}
+        </a-tag>
+        <a-input-group compact>
+          <a-input
+            v-model:value="state.betag"
+            style="width: calc(100% - 100px)"
+            placeholder="请输入"
+            size="small"
+          />
+          <a-button
+            type="primary"
+            size="small"
+            @click="addTag"
+          >
+            添加导语
+          </a-button>
+        </a-input-group>
       </div>
-    
-      <div class="user-input">
+      <div
+        v-for="(item,index) in msgs"
+        :key="index"
+        class="item"
+        :class="{
+          Q:item.role==='user',
+          A:item.role==='assistant'
+        }"
+      >
+        <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
+        <a-tag
+          v-if="item.tag"
+          :color="state.isDark?'#87d068':'green'"
+          class="cursor-pointer important-ml-4px"
+          @click="state.showSetTag=true"
+        >
+          {{ item.tag }}
+        </a-tag>
+        {{ item.content }}
         <span
-          v-if="state.showTip"
-          class="error"
-        >{{ state.tipMsg }}</span>
-        <a-textarea
-          ref="textarea"
-          v-model:value="state.input"
-          class="user-input-textarea"
-          :rows="4"
-          placeholder="可以继续聊天哟"
-          @keydown.enter="send"
+          v-show="index===msgs.length-1 && state.reqing"
+          class="light-line"
         />
       </div>
+    </div>
+    
+    <div class="user-input">
+      <span
+        v-if="state.showTip"
+        class="error"
+      >{{ state.tipMsg }}</span>
+      <a-textarea
+        ref="textarea"
+        v-model:value="state.input"
+        class="user-input-textarea"
+        :rows="4"
+        placeholder="可以继续聊天哟"
+        @keydown.enter="send"
+      />
     </div>
   </div>
 </template>
@@ -145,14 +144,15 @@ const state = reactive({
     {content:`翻译成英文:`},
     {content:`润色这段话:`},
   ],
-  betag:''
+  betag:'',
+  isFull:false
 })
 
 const textarea = ref()
 
 const chatPanle = ref()
 
-type msgItem = {role:string,content:string,tag?:string}
+type msgItem = {role:string,content:string,tag?:string,marked?:string}
 
 const msgs = ref<msgItem[]>([
 //   { role: 'system', content: 'be nice' }
@@ -460,6 +460,7 @@ const req = async ()=>{
     -webkit-text-size-adjust: 100%;
     font-size: 14px;
     text-size-adjust: 100% !important; 
+    display: flex;
     position: absolute;
     z-index:2147483647;
     box-sizing: border-box;
@@ -474,8 +475,10 @@ const req = async ()=>{
     box-shadow: rgb(0 0 0 / 80%) 0 4px 23px -6px;
     background-color: var(--ai-chat-deep-bg);
     transition: all .3s;
+    padding-bottom: 98px;
     .chat-panel{
-        height:252px;
+        width: 100%;
+        height:auto;
         overflow-y: scroll;
         scrollbar-width: none; /* Firefox 兼容性 */
         -ms-overflow-style: none; /* IE 兼容性 */
@@ -502,6 +505,7 @@ const req = async ()=>{
             }
         }
         .A{
+            display: flex;
             background-color: var(--ai-chat-deep-bg);
             .tip{
                 color:rgb(135, 208, 104);
@@ -539,9 +543,15 @@ const req = async ()=>{
     }
     .user-input-textarea{
         background-color: var(--ai-chat-bg);
+        color:var(--ai-chat-font-color)
     }
     
 } 
+.full-screen{
+    width: 100vw;
+    height:100vh;
+    position: fixed;
+}
 .ai-chat-container-panel-dark .user-input-textarea{
     border: none;
 }

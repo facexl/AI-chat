@@ -36,8 +36,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { message } from 'ant-design-vue';
-import 'ant-design-vue/es/message/style/css';
+import { storage,isProd } from '../utils'
   
 const state = reactive({
   apikey:'',
@@ -55,7 +54,7 @@ const insert = (key)=>{
 }
   
 onMounted(()=>{
-  ['apikey','host'].forEach(it=>{
+  isProd && ['apikey','host'].forEach(it=>{
     insert(it)
   })
 })
