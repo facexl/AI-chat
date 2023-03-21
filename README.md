@@ -20,4 +20,4 @@
 - [x] dark mode
 - [x] tool bar 增加 set 按钮 
 - [x] 右上角点击增加自助翻译  
-- [ ] markdown 渲染回答  
+- [ ] markdownit 和 highlight.js 渲染回答  

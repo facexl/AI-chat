@@ -87,7 +87,7 @@
         >
           {{ item.tag }}
         </a-tag>
-        {{ item.content }}
+        <span v-html="item.marked || item.content" />
         <span
           v-show="index===msgs.length-1 && state.reqing"
           class="light-line"
@@ -115,6 +115,22 @@
 import config from '../../config'
 import { createParser } from 'eventsource-parser'
 import { storage,isProd } from '../utils'
+import MarkdownIt from 'markdown-it'
+import hljs from 'highlight.js'
+
+const md = new MarkdownIt({
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+               '</code></pre>';
+      } catch (__) {}
+    }
+
+    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+  }
+});
 
 
 const props = defineProps({
@@ -400,7 +416,8 @@ const req = async ()=>{
 
           msgs.value.splice(msgs.value.length-1,1,{
             role:msg.role,
-            content:(msg.content+delta.content).trim()
+            content:(msg.content+delta.content).trim(),
+            marked:md.render((msg.content+delta.content).trim())
           })
         }
       
