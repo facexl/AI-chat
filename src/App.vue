@@ -108,8 +108,8 @@ onMounted(()=>{
         selectString.value = selectedText
 
         style.value = {
-          left:x.value+'px',
-          top:y.value+'px'
+          left:x.value+8+'px',
+          top:y.value+8+'px'
         }
 
         setTimeout(()=>{

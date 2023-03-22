@@ -3,7 +3,9 @@
     class="ai-chat-container-panel"
     :class="{
       'ai-chat-container-panel-dark':state.isDark,
-      'full-screen':state.isFull
+      'full-screen':state.isFull,
+      'hljs-github':!state.isDark,
+      'hljs-github-dark':state.isDark,
     }"
     :style="style"
   >
@@ -78,7 +80,7 @@
           A:item.role==='assistant'
         }"
       >
-        <span class="tip">{{ item.role==='user'?'Q':'A' }}</span>
+        <span class="tip mr-4px">{{ item.role==='user'?'Q':'A' }}</span>
         <a-tag
           v-if="item.tag"
           :color="state.isDark?'#87d068':'green'"
@@ -91,7 +93,9 @@
         <span
           v-show="index===msgs.length-1 && state.reqing"
           class="light-line"
-        />
+        >
+          <span style="opacity: 0;">_</span>
+        </span>
       </div>
     </div>
     
@@ -115,22 +119,15 @@
 import config from '../../config'
 import { createParser } from 'eventsource-parser'
 import { storage,isProd } from '../utils'
-import MarkdownIt from 'markdown-it'
+import markdown from 'markdown-it'
 import hljs from 'highlight.js'
+// import 'highlight.js/styles/default.css';
+// import 'highlight.js/styles/github-dark.css'
+// import 'highlight.js/styles/github-dark-dimmed.css'
+// import 'highlight.js/styles/github.css'
+import javascript from 'highlight.js/lib/languages/javascript';
 
-const md = new MarkdownIt({
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return '<pre class="hljs"><code>' +
-               hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-               '</code></pre>';
-      } catch (__) {}
-    }
-
-    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-  }
-});
+hljs.registerLanguage('javascript', javascript);
 
 
 const props = defineProps({
@@ -139,6 +136,19 @@ const props = defineProps({
   style:Object
 })
 
+const md = markdown({
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+               hljs.highlight(lang, str, true).value +
+               '</code></pre>';
+      } catch (__) {}
+    }
+
+    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+  }
+});
 
 // constant
 let default_tag = `翻译成中文:`
@@ -414,10 +424,12 @@ const req = async ()=>{
         if(delta.content){
           const msg = msgs.value[msgs.value.length-1]
 
+          const content = msg.content+delta.content
+
           msgs.value.splice(msgs.value.length-1,1,{
             role:msg.role,
-            content:(msg.content+delta.content).trim(),
-            marked:md.render((msg.content+delta.content).trim())
+            content:content,
+            marked:content.includes('```')?md.render((msg.content+delta.content)):''
           })
         }
       
@@ -455,6 +467,9 @@ const req = async ()=>{
 }
 </script>
 <style lang="less">
+@import './hljs_github_dark.less';
+@import './hljs_github.less';
+
 .ai-chat-container-panel{
     --ai-chat-bg:#fff;
     --ai-chat-deep-bg:#f3f3f3;
@@ -484,8 +499,10 @@ const req = async ()=>{
     padding-top:var(--toolbar-height);
     left:0;
     top:0;
-    width:450px;
-    height:380px;
+    // width:450px;
+    // height:380px;
+    width:550px;
+    height:480px;
     // user-select: none;
     transition: width .4s,height .4s,opacity .4s,top .4s cubic-bezier(.55,.82,.63,.95),left .4s cubic-bezier(.4,.9,.71,1.02);
     border-radius: 6px;
@@ -522,7 +539,7 @@ const req = async ()=>{
             }
         }
         .A{
-            display: flex;
+            // display: flex;
             background-color: var(--ai-chat-deep-bg);
             .tip{
                 color:rgb(135, 208, 104);

@@ -20,4 +20,6 @@
 - [x] dark mode
 - [x] tool bar 增加 set 按钮 
 - [x] 右上角点击增加自助翻译  
-- [ ] markdownit 和 highlight.js 渲染回答  
+- [x] markdownit 和 highlight.js 渲染回答  并且实现 code 代码区明暗主题  
+- [ ] 保留历史对话  
+- [ ] 窗口处点击最大化 直接打开新tab  

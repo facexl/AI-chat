@@ -2,7 +2,6 @@ import { createApp } from 'vue'
 import 'uno.css'
 import App from './App.vue'
 import { isProd } from './utils'
-import 'highlight.js/styles/github.css';
 
 
 const prod = ()=>{
