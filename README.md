@@ -6,7 +6,7 @@
 
 ### 1.划词翻译:
 
-![示例图片](/docAssets/1.png)  
+![示例图片](/docAssets/1.png){width=1%}  
 
 ### 2.预设引导语:
 
