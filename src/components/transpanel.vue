@@ -10,7 +10,7 @@
     :style="style"
   >
     <div class="toolbar">
-      <span class="title">AI-chat  powered by openai chatGpt</span>
+      <span class="title">AI-chat</span>
       <div class="menus cursor-pointer">
         <span
           class="mr-4px"

@@ -34,7 +34,7 @@
 
 
 
-## 持续开发中的工作  
+## 持续开发中的: 
 
 - [x] 使用 shodow dom 避免 css 污染
 - [x] popup.html ui 优化一下  

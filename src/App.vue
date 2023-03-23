@@ -48,7 +48,6 @@
 <script setup lang="ts"> 
 
 import { useMouse } from '@vueuse/core'
-import { off } from 'process';
 import transpanel from './components/transpanel.vue'
 import { isProd } from './utils'
 
