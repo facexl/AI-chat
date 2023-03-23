@@ -8,11 +8,11 @@
       this is dev mode
     </div>
     <div>you can select this text</div>
-    <div>Don't forget to disable chrome extensions</div>
+    <div>Don't forget to disable chrome extensions AI-chat</div>
   </div>
 
   <div
-    v-show="showicon"
+    v-show="state.showicon"
     ref="icon"
     class="ai-chat-container"
     :style="style"
@@ -25,13 +25,15 @@
         rotate:useRotate
       }"
       @mouseover="mouseover"
-      @click="showtrans=true"
+      @click="state.showtrans=true"
       @mouseleave="useRotate=false"
     >
+    
     <transpanel
-      v-if="showtrans"
+      v-if="state.showtrans"
       ref="panel"
       class="ai-chat-container-panel"
+      :style="panelStyle"
       :select="selectString"
     />
   </div>
@@ -46,6 +48,7 @@
 <script setup lang="ts"> 
 
 import { useMouse } from '@vueuse/core'
+import { off } from 'process';
 import transpanel from './components/transpanel.vue'
 import { isProd } from './utils'
 
@@ -55,10 +58,6 @@ if(chrome && chrome.runtime){
   iconimgUrl.value = chrome.runtime.getURL('/icon.png')
 }
 
-const showicon = ref(false)
-
-const showtrans = ref(false)
-
 const selectString = ref('')
 
 const useRotate = ref()
@@ -67,7 +66,10 @@ const icon = ref()
 
 const panel = ref()
 
-
+const state = reactive({
+  showicon:false,
+  showtrans:false
+})
 
 
 let timer;
@@ -77,18 +79,30 @@ const style = ref({
   top:''
 })
 
+const panelStyle = ref({
+  left:'0',
+  top:'0'
+})
+
 const down = (event)=>{
-  const target = showtrans.value?panel.value.$el:icon.value;
+  const target = state.showtrans?panel.value.$el:icon.value;
 
   // shadow dom 和 普通 dom 这里判断不一样
   const isClickInsideTargetDiv = isProd?event.composedPath().includes(target):target?.contains(event.target);
 
   if (!isClickInsideTargetDiv) {
-    showicon.value = false
+    state.showicon = false
 
-    showtrans.value = false
+    state.showtrans = false
 
     document.removeEventListener('mousedown',down)
+  }
+}
+
+const getScrollMsg = ()=>{
+  return {
+    height:document.documentElement.scrollTop || document.body.scrollTop,
+    width:document.documentElement.scrollLeft || document.body.scrollLeft
   }
 }
 
@@ -96,20 +110,66 @@ onMounted(()=>{
 
   const { x, y } = useMouse()
 
+  const icon = 30
+
+  const offset = 8
+
+  const offseticon = offset+icon
+
+  let left = 0
+
+  let top = 0
+
+  const panelWidth = 550
+
+  const panelHeight = 480
+
+  
+
   document.addEventListener('mouseup',()=>{ 
     setTimeout(()=>{
       const selectedText = document?.getSelection()?.toString();
 
-      if(selectedText && selectedText.length > 0 && !showicon.value) {
+      if(selectedText && selectedText.length > 0 && !state.showicon) {
         console.log(selectedText)
 
-        showicon.value = true
+        state.showicon = true
 
         selectString.value = selectedText
 
+        const scroll = getScrollMsg()
+
+        const realInnerWidth = innerWidth+scroll.width
+
+        const realInnerHeight = innerHeight+scroll.height
+
+        if(x.value+offseticon>realInnerWidth){
+          left = x.value-offseticon
+        }else{
+          left = x.value+offset
+        }
+
+        if(y.value+offseticon>realInnerHeight){
+          top = y.value-offseticon
+        }else{
+          top = y.value+offset
+        }
+
+        if(x.value+panelWidth>realInnerWidth){
+          panelStyle.value.left=`-${panelWidth}px`
+        }else{
+          panelStyle.value.left = `-${offseticon}px`
+        }
+
+        if(y.value+panelHeight/2>realInnerHeight){
+          panelStyle.value.top=`-${panelHeight}px`
+        }else{
+          panelStyle.value.top = `0`
+        }
+
         style.value = {
-          left:x.value+8+'px',
-          top:y.value+8+'px'
+          left:left+'px',
+          top:top+'px'
         }
 
         setTimeout(()=>{
@@ -126,8 +186,8 @@ const mouseover = ()=>{
   clearTimeout(timer)
 
   timer = setTimeout(_=>{
-    if(useRotate.value && !showtrans.value){
-      showtrans.value = true
+    if(useRotate.value && !state.showtrans){
+      state.showtrans = true
     }
   },1000)
 }

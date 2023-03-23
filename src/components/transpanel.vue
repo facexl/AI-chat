@@ -132,6 +132,8 @@ const props = defineProps({
   style:Object
 })
 
+
+
 const md = markdown({
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
@@ -495,8 +497,6 @@ const req = async ()=>{
     padding-top:var(--toolbar-height);
     left:0;
     top:0;
-    // width:450px;
-    // height:380px;
     width:550px;
     height:480px;
     // user-select: none;
@@ -578,8 +578,10 @@ const req = async ()=>{
     
 } 
 .full-screen{
-    width: 100vw;
-    height:100vh;
+    width: 100vw !important;
+    height:100vh !important;
+    left: 0 !important;
+    top:0 !important;
     position: fixed;
 }
 .ai-chat-container-panel-dark .user-input-textarea{
