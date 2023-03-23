@@ -1,5 +1,3 @@
-#  还在开发中
-
 ## AI-chat 是一款 openai chatGpt api 驱动的划词聊天、划词翻译 chrome 插件，支持预设引导语，使用 stream 模式请求 openai，快速响应
 
 比如：引导语设置为:`翻译成中文：`,这时候 `AI-chat` 就化身为划词翻译了！
