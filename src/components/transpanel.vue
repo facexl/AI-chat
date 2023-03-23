@@ -121,10 +121,6 @@ import { createParser } from 'eventsource-parser'
 import { storage,isProd } from '../utils'
 import markdown from 'markdown-it'
 import hljs from 'highlight.js'
-// import 'highlight.js/styles/default.css';
-// import 'highlight.js/styles/github-dark.css'
-// import 'highlight.js/styles/github-dark-dimmed.css'
-// import 'highlight.js/styles/github.css'
 import javascript from 'highlight.js/lib/languages/javascript';
 
 hljs.registerLanguage('javascript', javascript);
