@@ -2,35 +2,37 @@
 
 比如：引导语设置为:`翻译成中文：`,这时候 `AI-chat` 就化身为划词翻译了！
 
+### 使用方式:
+
+由于暂时还没有上架 chrome 应用商店，只能通过下载当前项目，chrome 地址栏输入 `chrome://extensions/`，打开开发者模式，选择`加载已解压的扩展程序`然后选择本项目的 `dist`目录。
+
 ### 功能简介:
 
 ### 1.划词翻译:
 
-<img src="/docAssets/1.png" alt="示例图片" width="400">
+<img src="/docAssets/1.png" alt="示例图片" width="500">
 
 ### 2.预设引导语:
 
-![示例图片](/docAssets/2.png)
+<img src="/docAssets/2.png" alt="示例图片" width="500">
 
 ### 3.继续聊天:
 
-![示例图片](/docAssets/3.png)  
+<img src="/docAssets/3.png" alt="示例图片" width="500">
 
 ### 4.内置markdown解析和语法高亮，支持渲染代码块
 
-![示例图片](/docAssets/4.png) 
+<img src="/docAssets/4.png" alt="示例图片" width="500">
 
 ### 5.暗夜模式以及全屏模式  
 
-![示例图片](/docAssets/5.png) 
+<img src="/docAssets/5.png" alt="示例图片" width="500"> 
 
 ### 6.点击右上角插件图标快速聊天模式  
 
-![示例图片](/docAssets/6.png) 
+<img src="/docAssets/6.png" alt="示例图片" width="500">
 
-## 使用方式:
 
-由于暂时还没有上架 chrome 应用商店，只能通过下载当前项目，chrome 地址栏输入 `chrome://extensions/`，打开开发者模式，选择`加载已解压的扩展程序`然后选择本项目的 `dist`目录。
 
 ## 持续开发中的工作  
 
