@@ -20,7 +20,10 @@
           class="mr-4px"
           @click="toogleSet"
         >设置</span>
-        <span @click="state.isFull=!state.isFull">{{ state.isFull?'最小化':'最大化' }}</span>
+        <span
+          v-if="!isPopup"
+          @click="state.isFull=!state.isFull"
+        >{{ state.isFull?'最小化':'最大化' }}</span>
         <!-- <span>关闭</span> -->
       </div>
     </div>
