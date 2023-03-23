@@ -64,6 +64,7 @@
             style="width: calc(100% - 100px)"
             placeholder="请输入"
             size="small"
+            @keydown.enter="addTag"
           />
           <a-button
             type="primary"
@@ -216,8 +217,14 @@ watch(msgs,()=>{
 })
 
 watch(()=>state.tags,(v)=>{
+  console.log(12324,v)
+
   isProd && storage.set({
     tags:v
+  }).then(res=>{
+    console.log(res)
+  }).catch(err=>{
+    console.log(err)
   })
 },{
   deep:true
@@ -244,7 +251,7 @@ const addTag = ()=>{
 }
 
 const deltags = (i)=>{
-  state.tags.splice(i,1)
+  state.tags.splice(i,0)
 }
 
 const toogleTags = async (item)=>{
