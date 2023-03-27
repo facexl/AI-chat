@@ -169,8 +169,7 @@ const setPosition = ()=>{
     top = y.value+offset
   }
 
-  // 开发模式调这个位置导致控制台调试不方便
-  // if(isProd){
+
   const panelRes = {} as any
   
   if(x.value+panelWidth>realInnerWidth){
@@ -186,7 +185,7 @@ const setPosition = ()=>{
   }
 
   panelStyle.value = panelRes
-  // }
+  
 
   style.value = {
     left:left+'px',
@@ -218,7 +217,9 @@ onMounted(()=>{
     },0)
   })
 
-  window.onresize = setPosition
+  if(!isProd){
+    window.onresize = setPosition
+  }
 })
 
 const mouseover = ()=>{
