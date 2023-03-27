@@ -10,10 +10,12 @@
       />
       <a-input
         v-model:value="state.host"
-        class="mt-16px"
+        class="mt-16px mb-16px"
         addon-before="proxy host &nbsp;&nbsp;&nbsp;&nbsp;"
         placeholder="please input host"
       />
+      <span>是否开启 百度/google/bing 搜索同时询问 chatGpt: </span>
+      <a-switch v-model:checked="state.searchGpt" />
       <div
         style="display: flex;justify-content: center;"
         class="mt-16px"
@@ -37,20 +39,24 @@
 </template>
 <script lang="ts" setup>
 import { storage } from '../utils'
+import config from '../config'
   
 const state = reactive({
   apikey:'',
-  host:'https://api.openai.com'
+  host:config.host,
+  searchGpt:false
 })
 
 const emits = defineEmits(['toogle','fresh'])
   
 
 onMounted(async ()=>{
-  
-  const d = await storage.get(['apikey','host']);
 
-  ['apikey','host'].forEach(it=>{
+  const keys = Object.keys(state)
+  
+  const d = await storage.get(keys);
+
+  keys.forEach(it=>{
     if(d[it]){
       state[it] = d[it]
     }

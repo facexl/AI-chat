@@ -24,6 +24,10 @@
           v-if="!isPopup"
           @click="state.isFull=!state.isFull"
         >{{ state.isFull?'最小化':'最大化' }}</span>
+        <span
+          class="ml-4px"
+          @click="$emit('close')"
+        >x</span>
         <!-- <span>关闭</span> -->
       </div>
     </div>
@@ -135,6 +139,8 @@ const props = defineProps({
   style:Object,
   isChat:Boolean
 })
+
+defineEmits(['close'])
 
 
 
@@ -309,16 +315,22 @@ const check = async ()=>{
   host = data.host
       
   // 右上角弹窗直接聊天 或者设置了直接聊天
-  if(props.isPopup || props.isChat){
+  if(props.isPopup){
     return
   }
 
-  // to do use default_tag
-  msgs.value.push({ 
-    role: 'user', 
-    content: props.select as string,
-    tag:data.default_tag || default_tag
-  })
+  if(props.isChat){
+    msgs.value.push({ 
+      role: 'user', 
+      content: props.select as string
+    })
+  }else{
+    msgs.value.push({ 
+      role: 'user', 
+      content: props.select as string,
+      tag:data.default_tag || default_tag
+    })
+  }
 
   req()
   
@@ -481,8 +493,6 @@ const req = async ()=>{
     z-index:2147483647;
     box-sizing: border-box;
     padding-top:var(--toolbar-height);
-    left:0;
-    top:0;
     width:550px;
     height:480px;
     // user-select: none;

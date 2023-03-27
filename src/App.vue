@@ -28,21 +28,16 @@
       @click="state.showtrans=true;state.isChat=false"
       @mouseleave="useRotate=false"
     >
-    
-    <transpanel
-      v-if="state.showtrans"
-      ref="panel"
-      class="ai-chat-container-panel"
-      :style="panelStyle"
-      :select="selectString"
-      :is-chat="state.isChat"
-    />
   </div>
-  <!-- <transpanel
+  <transpanel
+    v-if="state.showtrans"
     ref="panel"
     class="ai-chat-container-panel"
+    :style="panelStyle"
     :select="selectString"
-  /> -->
+    :is-chat="state.isChat"
+    @close="state.showtrans=false;state.isChat=false"
+  />
 </template>
 
 
@@ -50,7 +45,8 @@
 
 import { useMouse } from '@vueuse/core'
 import transpanel from './components/transpanel.vue'
-import { isProd } from './utils'
+import { isProd,storage } from './utils'
+import config from './config'
 
 const iconimgUrl = ref('/icon.png')
 
@@ -66,6 +62,8 @@ const icon = ref()
 
 const panel = ref()
 
+const { x, y } = useMouse()
+
 const state = reactive({
   showicon:false,
   showtrans:false,
@@ -80,9 +78,11 @@ const style = ref({
   top:''
 })
 
-const panelStyle = ref({
-  left:'0',
-  top:'0'
+const panelStyle = ref<{
+    [key:string]:string|number
+}>({
+  left:0,
+  top:0
 })
 
 const down = (event)=>{
@@ -107,10 +107,36 @@ const getScrollMsg = ()=>{
   }
 }
 
-onMounted(()=>{
+const checkSearchModel = async ()=>{
+  const { searchGpt } = await storage.get('searchGpt')
 
-  const { x, y } = useMouse()
+  if(!searchGpt)return
 
+  config.hosts.forEach(it=>{
+    if(location.host===it.host && location.pathname===it.path){
+      const res = location.href.match(it.reg)
+
+      //   const res = location.href.match(/(?<=\?wd=)[^&]*/)
+
+      if(res && res[0] && res[1]){
+        panelStyle.value = {
+          right:0,
+          top:0
+        }
+
+        state.isChat = true
+
+        state.showtrans = true
+
+        selectString.value = decodeURIComponent(res[1])
+
+      }
+    }
+  })
+}
+
+const setPosition = ()=>{
+  
   const icon = 30
 
   const offset = 8
@@ -125,7 +151,52 @@ onMounted(()=>{
 
   const panelHeight = 480
 
+  const scroll = getScrollMsg()
+
+  const realInnerWidth = innerWidth+scroll.width
+
+  const realInnerHeight = innerHeight+scroll.height
+
+  if(x.value+offseticon>realInnerWidth){
+    left = x.value-offseticon
+  }else{
+    left = x.value+offset
+  }
+
+  if(y.value+offseticon>realInnerHeight){
+    top = y.value-offseticon
+  }else{
+    top = y.value+offset
+  }
+
+  // 开发模式调这个位置导致控制台调试不方便
+  // if(isProd){
+  const panelRes = {} as any
   
+  if(x.value+panelWidth>realInnerWidth){
+    panelRes.left=`${x.value-panelWidth}px`
+  }else{
+    panelRes.left = `${x.value-offseticon}px`
+  }
+
+  if(y.value+panelHeight/2>realInnerHeight){
+    panelRes.top=`${y.value-panelHeight}px`
+  }else{
+    panelRes.top = y.value+'px'
+  }
+
+  panelStyle.value = panelRes
+  // }
+
+  style.value = {
+    left:left+'px',
+    top:top+'px'
+  }
+}
+
+onMounted(()=>{
+  // 搜索询问gpt
+  checkSearchModel()
 
   document.addEventListener('mouseup',()=>{ 
     setTimeout(()=>{
@@ -138,45 +209,7 @@ onMounted(()=>{
 
         selectString.value = selectedText
 
-        const scroll = getScrollMsg()
-
-        const realInnerWidth = innerWidth+scroll.width
-
-        const realInnerHeight = innerHeight+scroll.height
-
-        if(x.value+offseticon>realInnerWidth){
-          left = x.value-offseticon
-        }else{
-          left = x.value+offset
-        }
-
-        if(y.value+offseticon>realInnerHeight){
-          top = y.value-offseticon
-        }else{
-          top = y.value+offset
-        }
-
-        // 开发模式调这个位置导致控制台调试不方便
-        if(isProd){
-          if(x.value+panelWidth>realInnerWidth){
-            panelStyle.value.left=`-${panelWidth}px`
-          }else{
-            panelStyle.value.left = `-${offseticon}px`
-          }
-
-          if(y.value+panelHeight/2>realInnerHeight){
-            panelStyle.value.top=`-${panelHeight}px`
-          }else{
-            panelStyle.value.top = `0`
-          }
-        }
-
-
-
-        style.value = {
-          left:left+'px',
-          top:top+'px'
-        }
+        setPosition()
 
         setTimeout(()=>{
           document.addEventListener('mousedown',down,false)
@@ -184,6 +217,8 @@ onMounted(()=>{
       }
     },0)
   })
+
+  window.onresize = setPosition
 })
 
 const mouseover = ()=>{

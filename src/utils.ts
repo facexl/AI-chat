@@ -2,11 +2,28 @@
 
 export const isProd = import.meta.env.PROD
 
-export const storage = isProd?{
+
+interface S{
+    get<T extends string>(key:T):Promise<{
+        [key in T]:any
+    }>,
+    get<T extends string[]>(keys:T):Promise<{
+        [key in T[number]]:any
+    }>,
+    set:(obj:{[key:string]:any})=>Promise<undefined>,
+    remove:(key:string)=>Promise<undefined>,
+    clear:()=>Promise<undefined>
+}
+
+// storage.get<['a']>(['a']).then(res=>{
+//   res.
+// })
+
+export const storage = (isProd?{
   get(keys) {
     return new Promise((resolve) => {
       chrome.storage.sync.get(keys, (result) => {
-        resolve(result);
+        resolve(result as any);
       });
     });
   },
@@ -38,7 +55,7 @@ export const storage = isProd?{
 }:{
   get(keys){
     return new Promise(resolve=>{
-      const k = Array.isArray(keys)?keys:[keys]
+      const k = (Array.isArray(keys)?keys:[keys])
 
       resolve(k.reduce((a,b)=>{
         a[b] = getJsonData(localStorage.getItem(b))
@@ -74,7 +91,7 @@ export const storage = isProd?{
       resolve(undefined);
     });
   },
-}
+}) as S
 
 const getJsonData = (d)=>{
   try{
