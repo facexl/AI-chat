@@ -36,7 +36,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { storage,isProd } from '../utils'
+import { storage } from '../utils'
   
 const state = reactive({
   apikey:'',
@@ -45,29 +45,25 @@ const state = reactive({
 
 const emits = defineEmits(['toogle','fresh'])
   
-const insert = (key)=>{
-  chrome.storage.sync.get(key, function(data) {
-    if(data[key]){
-      state[key] = data[key]
-    }
-  });
-}
+
+onMounted(async ()=>{
   
-onMounted(()=>{
-  isProd && ['apikey','host'].forEach(it=>{
-    insert(it)
+  const d = await storage.get(['apikey','host']);
+
+  ['apikey','host'].forEach(it=>{
+    if(d[it]){
+      state[it] = d[it]
+    }
   })
 })
     
-const submit=()=>{
-  chrome.storage.sync.set(state, function() {
-
-    emits('toogle')
-
-    emits('fresh')
-  });
-
+const submit=async ()=>{
   
+  await storage.set(state)
+
+  emits('toogle')
+
+  emits('fresh')
 }
   
 </script>

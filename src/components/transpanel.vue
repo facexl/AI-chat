@@ -120,7 +120,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import config from '../../config'
 import { createParser } from 'eventsource-parser'
 import { storage,isProd } from '../utils'
 import markdown from 'markdown-it'
@@ -133,7 +132,8 @@ hljs.registerLanguage('javascript', javascript);
 const props = defineProps({
   select:String,
   isPopup:Boolean,
-  style:Object
+  style:Object,
+  isChat:Boolean
 })
 
 
@@ -187,15 +187,10 @@ const msgs = ref<msgItem[]>([
 ])
 
 const setDefaultTag = async (target_tag)=>{
-
-  if(isProd){
-    return await storage.set({
-      default_tag
-    })
-  }else{
-
-    return (default_tag = target_tag)
-  }
+  return await storage.set({
+    default_tag:target_tag
+  })
+  
 }
 
 watch(()=>state.tipMsg,()=>{
@@ -219,19 +214,15 @@ watch(msgs,()=>{
 watch(()=>state.tags,(v)=>{
   console.log(12324,v)
 
-  isProd && storage.set({
+  storage.set({
     tags:v
-  }).then(res=>{
-    console.log(res)
-  }).catch(err=>{
-    console.log(err)
   })
 },{
   deep:true
 })
 
 watch(()=>state.isDark,(v)=>{
-  isProd && storage.set({
+  storage.set({
     isDark:v
   })
 })
@@ -284,67 +275,52 @@ const toogleSet = ()=>{
   state.showSetInfo = !state.showSetInfo
 }
 
-const check = ()=>{
-  isProd?
-    chrome.storage.sync.get(['apikey','host','default_tag','isDark','tags'], function(data) {
-      console.log('chrome get what',data)
+const check = async ()=>{
+  const data = await storage.get(['apikey','host','default_tag','isDark','tags'])
 
-      if(!data.apikey){
-        state.tipMsg = '检测到未设置 apikey,请点击右上角设置按钮进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
+  console.log('chrome get what:',data)
 
-        state.showSetInfo = true
+  if(!data.apikey){
+    state.tipMsg = '检测到未设置 apikey,请点击右上角设置按钮进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
 
-        return
-      }
+    state.showSetInfo = true
 
-      if(!data.host){
-        state.tipMsg = '检测到未设置 host,请点击右上角设置按钮进行设置'
+    return
+  }
 
-        state.showSetInfo = true
+  if(!data.host){
+    state.tipMsg = '检测到未设置 host,请点击右上角设置按钮进行设置'
 
-        return
-      }
+    state.showSetInfo = true
 
-      if(data.isDark){
-        state.isDark = true
-      }
+    return
+  }
 
-      if(data.tags){
-        state.tags = data.tags
-      }
+  if(data.isDark){
+    state.isDark = true
+  }
 
-      apikey = data.apikey
+  if(data.tags){
+    state.tags = data.tags
+  }
 
-      host = data.host
+  apikey = data.apikey
+
+  host = data.host
       
-      // 右上角弹窗直接聊天
-      if(props.isPopup){
-        return
-      }
+  // 右上角弹窗直接聊天 或者设置了直接聊天
+  if(props.isPopup || props.isChat){
+    return
+  }
 
-      // to do use default_tag
-      msgs.value.push({ 
-        role: 'user', 
-        content: props.select as string,
-        tag:data.default_tag || default_tag
-      })
+  // to do use default_tag
+  msgs.value.push({ 
+    role: 'user', 
+    content: props.select as string,
+    tag:data.default_tag || default_tag
+  })
 
-      req()
-    }):(()=>{
-
-      msgs.value.push({ 
-        role: 'user', 
-        content:props.select as string,
-        tag:default_tag
-      })
-
-      apikey = config.apikey as string
-
-      host = config.host as string
-
-      req()
-      
-    })()
+  req()
   
 }
 

@@ -25,7 +25,7 @@
         rotate:useRotate
       }"
       @mouseover="mouseover"
-      @click="state.showtrans=true"
+      @click="state.showtrans=true;state.isChat=false"
       @mouseleave="useRotate=false"
     >
     
@@ -35,6 +35,7 @@
       class="ai-chat-container-panel"
       :style="panelStyle"
       :select="selectString"
+      :is-chat="state.isChat"
     />
   </div>
   <!-- <transpanel
@@ -67,7 +68,8 @@ const panel = ref()
 
 const state = reactive({
   showicon:false,
-  showtrans:false
+  showtrans:false,
+  isChat:false
 })
 
 
@@ -129,7 +131,7 @@ onMounted(()=>{
     setTimeout(()=>{
       const selectedText = document?.getSelection()?.toString();
 
-      if(selectedText && selectedText.length > 0 && !state.showicon) {
+      if(selectedText && selectedText.length > 0 && !state.showicon && !state.showtrans) {
         console.log(selectedText)
 
         state.showicon = true
@@ -154,17 +156,22 @@ onMounted(()=>{
           top = y.value+offset
         }
 
-        if(x.value+panelWidth>realInnerWidth){
-          panelStyle.value.left=`-${panelWidth}px`
-        }else{
-          panelStyle.value.left = `-${offseticon}px`
+        // 开发模式调这个位置导致控制台调试不方便
+        if(isProd){
+          if(x.value+panelWidth>realInnerWidth){
+            panelStyle.value.left=`-${panelWidth}px`
+          }else{
+            panelStyle.value.left = `-${offseticon}px`
+          }
+
+          if(y.value+panelHeight/2>realInnerHeight){
+            panelStyle.value.top=`-${panelHeight}px`
+          }else{
+            panelStyle.value.top = `0`
+          }
         }
 
-        if(y.value+panelHeight/2>realInnerHeight){
-          panelStyle.value.top=`-${panelHeight}px`
-        }else{
-          panelStyle.value.top = `0`
-        }
+
 
         style.value = {
           left:left+'px',
@@ -187,6 +194,8 @@ const mouseover = ()=>{
   timer = setTimeout(_=>{
     if(useRotate.value && !state.showtrans){
       state.showtrans = true
+
+      state.isChat=false
     }
   },1000)
 }
