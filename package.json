@@ -17,6 +17,7 @@
     "highlight.js": "^11.7.0",
     "lodash.clonedeep": "^4.5.0",
     "markdown-it": "^13.0.1",
+    "markdown-it-multimd-table": "^4.2.1",
     "unocss": "^0.50.4",
     "vue": "^3.2.45"
   },

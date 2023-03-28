@@ -132,7 +132,8 @@ import { storage,isProd } from '../utils'
 import markdown from 'markdown-it'
 import hljs from 'highlight.js'
 import javascript from 'highlight.js/lib/languages/javascript';
-import mdKatex from '@traptitech/markdown-it-katex'
+// import mdKatex from '@traptitech/markdown-it-katex' // 这个依赖太重 关键打包里面有 unicode 字符，导致不能在chorme插件的内容js直接运行  
+import mdMultimdTable from 'markdown-it-multimd-table'
 
 
 
@@ -165,7 +166,9 @@ const md = new markdown({
   }
 })
 
-md.use(mdKatex, { blockClass: 'katexmath-block rounded-md p-[10px]', errorColor: ' #cc0000' });
+// md.use(mdKatex, { blockClass: 'katexmath-block rounded-md p-[10px]', errorColor: ' #cc0000' });
+
+md.use(mdMultimdTable)
 
 // constant
 let default_tag = `翻译成中文:`

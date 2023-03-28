@@ -43,7 +43,7 @@
 - [x] 面板位置 不要跑出屏幕  
 - [x] 切换到 stream 请求  
 - [x] 保留历史引导词条    
-- [x] dark mode
+- [x] dark mode  
 - [x] tool bar 增加 set 按钮 
 - [x] 右上角点击增加自助翻译  
 - [x] markdownit 和 highlight.js 渲染回答  并且实现 code 代码区明暗主题  
@@ -52,4 +52,4 @@
 - [x] google/baidu/bing 搜索时，顺带问问 gpt (可设置开关)  
 - [x] 优化面板位置调整  
 - [ ] 清除聊天  
-- [x] 支持 markdown 表格、列表渲染(使用markdown-it-katex配合github-markdown.less)
+- [x] 支持 markdown 表格、列表渲染(使用~~markdown-it-katex~~markdown-it-multimd-table配合github-markdown.less)

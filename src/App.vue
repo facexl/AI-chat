@@ -130,6 +130,15 @@ const checkSearchModel = async ()=>{
 
         selectString.value = decodeURIComponent(res[1])
 
+        it.effect && it.effect(()=>{
+
+          state.showtrans = false
+
+          setTimeout(()=>{
+            checkSearchModel()
+          },100)
+        })
+
       }
     }
   })

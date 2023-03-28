@@ -9,7 +9,27 @@ export default {
     {
       host:'www.baidu.com',
       path:'/s',
-      reg:/wd=([^&]*)/
+      reg:/wd=([^&]*)/,
+      init:false,
+      effect(fn){
+        if(this.init){
+          return
+        }
+
+        this.init = true
+
+        const input = <HTMLElement>document.getElementById('kw')
+
+        const btn = <HTMLElement>document.getElementById('su')
+
+        input.onkeydown = (e)=>{
+          if(e.code==='Enter'){
+            fn()
+          }
+        }
+
+        btn.onclick = fn
+      }
     },
     {
       host:'127.0.0.1:5173',
