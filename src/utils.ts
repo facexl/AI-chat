@@ -2,7 +2,6 @@
 
 export const isProd = import.meta.env.PROD
 
-
 interface S{
     get<T extends string>(key:T):Promise<{
         [key in T]:any
@@ -28,12 +27,8 @@ export const storage = (isProd?{
     });
   },
   set(obj) {
-    console.log('chrome set')
-  
     return new Promise((resolve) => {
       chrome.storage.sync.set(obj, () => {
-        console.log('chrome set success',obj)
-  
         resolve(undefined);
       });
     });

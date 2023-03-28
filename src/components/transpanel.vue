@@ -97,7 +97,10 @@
         >
           {{ item.tag }}
         </a-tag>
-        <span v-html="item.marked || item.content" />
+        <span
+          class="markdown-body"
+          v-html="item.marked || item.content"
+        />
         <span
           v-show="index===msgs.length-1 && state.reqing"
           class="light-line"
@@ -129,6 +132,9 @@ import { storage,isProd } from '../utils'
 import markdown from 'markdown-it'
 import hljs from 'highlight.js'
 import javascript from 'highlight.js/lib/languages/javascript';
+import mdKatex from '@traptitech/markdown-it-katex'
+
+
 
 hljs.registerLanguage('javascript', javascript);
 
@@ -144,7 +150,8 @@ defineEmits(['close'])
 
 
 
-const md = markdown({
+const md = new markdown({
+  linkify: true,
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
@@ -156,7 +163,9 @@ const md = markdown({
 
     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
   }
-});
+})
+
+md.use(mdKatex, { blockClass: 'katexmath-block rounded-md p-[10px]', errorColor: ' #cc0000' });
 
 // constant
 let default_tag = `翻译成中文:`
@@ -425,7 +434,7 @@ const req = async ()=>{
           msgs.value.splice(msgs.value.length-1,1,{
             role:msg.role,
             content:content,
-            marked:content.includes('```')?md.render((msg.content+delta.content)):''
+            marked:md.render((msg.content+delta.content))
           })
         }
       
@@ -465,6 +474,7 @@ const req = async ()=>{
 <style lang="less">
 @import './hljs_github_dark.less';
 @import './hljs_github.less';
+@import './github-markdown.less';
 
 .ai-chat-container-panel{
     --ai-chat-bg:#fff;

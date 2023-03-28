@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { storage } from '../utils'
 import config from '../config'
-  
+
 const state = reactive({
   apikey:'',
   host:config.host,
@@ -48,12 +48,10 @@ const state = reactive({
 })
 
 const emits = defineEmits(['toogle','fresh'])
-  
 
 onMounted(async ()=>{
-
   const keys = Object.keys(state)
-  
+
   const d = await storage.get(keys);
 
   keys.forEach(it=>{
@@ -62,9 +60,8 @@ onMounted(async ()=>{
     }
   })
 })
-    
+
 const submit=async ()=>{
-  
   await storage.set(state)
 
   emits('toogle')

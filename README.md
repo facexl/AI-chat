@@ -50,4 +50,6 @@
 - [ ] 保留历史对话    
 - [ ] 窗口处点击最大化 直接打开新tab  
 - [x] google/baidu/bing 搜索时，顺带问问 gpt (可设置开关)  
-- [ ] 优化面板位置调整  
+- [x] 优化面板位置调整  
+- [ ] 清除聊天  
+- [x] 支持 markdown 表格、列表渲染(使用markdown-it-katex配合github-markdown.less)

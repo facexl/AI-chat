@@ -17,7 +17,7 @@ const prod = ()=>{
 
   document.documentElement.insertBefore(el, null);
 
-  createApp(App).mount((el.shadowRoot as any).getElementById('ai-chat'))
+  createApp(App).mount((el.shadowRoot)!.getElementById('ai-chat') as Element)
 }
 
 const dev = ()=>{
