@@ -4,7 +4,7 @@
     v-if="!isProd"
     style="position: absolute;left:40%;top:40%;line-height: 1.5;"
   >
-    <div>浏览器模式，请划词召唤 AI-chat 小图标</div>
+    <div>AI-chat 在线演示</div>
     <div>你可以随便划词选中这些文本~然后点击鼠标旁的小图标</div>
     <div>
       this is browser mode
@@ -12,6 +12,12 @@
     <div>you can select this text</div>
     <div>if you install AI-chat chrome extension already</div>
     <div>don't forget to disable chrome extensions AI-chat</div>
+    <div class="mt-16px">
+      <a
+        target="__blank"
+        href="https://github.com/facexl/AI-chat"
+      >本项目 github 地址</a>   
+    </div>
   </div>
 
   <div
