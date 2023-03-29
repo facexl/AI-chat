@@ -212,13 +212,14 @@ const setPosition = ()=>{
 }
 
 onMounted(()=>{
-  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  isProd && chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(!state.showtrans){
       state.showtrans = true
 
       state.isChat=true
     }
   });
+  
 
 
   // 搜索询问gpt

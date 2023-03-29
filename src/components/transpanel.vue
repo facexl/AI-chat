@@ -25,7 +25,9 @@
           @click="state.isFull=!state.isFull"
         >{{ state.isFull?'最小化':'最大化' }}</span>
         <span
-          class="ml-4px"
+          v-if="!isPopup"
+          class="ml-4px mr-4px"
+          style="font-size:18px"
           @click="$emit('close')"
         >x</span>
         <!-- <span>关闭</span> -->
