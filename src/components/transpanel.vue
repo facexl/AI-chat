@@ -53,7 +53,7 @@
         </div>
         <a-tag
           v-for="(item,i) in state.tags"
-          :key="i"
+          :key="item.content"
           :color="state.isDark?'#2db7f5':'pink'"
           class="cursor-pointer important-mb-8px"
           closable
@@ -232,6 +232,7 @@ watch(msgs,()=>{
 })
 
 watch(()=>state.tags,(v)=>{
+
   console.log(12324,v)
 
   storage.set({
@@ -262,7 +263,9 @@ const addTag = ()=>{
 }
 
 const deltags = (i)=>{
-  state.tags.splice(i,0)
+  state.tags.splice(i,1)
+
+  console.log(state.tags,1232435)
 }
 
 const toogleTags = async (item)=>{
