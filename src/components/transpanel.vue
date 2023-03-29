@@ -98,7 +98,9 @@
           {{ item.tag }}
         </a-tag>
         <span
-          class="markdown-body"
+          :class="{
+            'markdown-body':item.role!=='user'
+          }"
           v-html="item.marked || item.content"
         />
         <span

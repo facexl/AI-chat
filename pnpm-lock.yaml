@@ -10,6 +10,7 @@ specifiers:
   '@vueuse/core': ^9.0.2
   ant-design-vue: ^3.2.10
   axios: ^0.27.2
+  browser-ex-storage: 0.0.3
   chalk: ^5.0.1
   eslint: ^8.21.0
   eslint-plugin-vue: ^9.3.0
@@ -36,6 +37,7 @@ dependencies:
   '@vueuse/core': 9.13.0_vue@3.2.47
   ant-design-vue: 3.2.15_vue@3.2.47
   axios: 0.27.2
+  browser-ex-storage: 0.0.3
   eventsource-parser: 0.1.0
   highlight.js: 11.7.0
   lodash.clonedeep: 4.5.0
@@ -1118,6 +1120,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       fill-range: 7.0.1
+
+  /browser-ex-storage/0.0.3:
+    resolution: {integrity: sha512-SPd9JeTIEvYa1XLUNCJO0v/nMp5JJyb9ZyZOdEbcHZEe07o3m0OxlsqyBwQPS5Rf9gjBkb3EUTNJYyzdYnN/TA==}
+    dev: false
 
   /buffer-from/1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
