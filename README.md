@@ -2,7 +2,7 @@
 
 比如：引导语设置为:`翻译成中文：`,这时候 `AI-chat` 就化身为划词翻译了！
 
-## [在线演示 demo](https://ai-chat-kf33qmxzl-facexl.vercel.app/)
+## [在线演示 demo](https://aichat.xlcool.cn/)
 
 ### 使用方式:
 
