@@ -59,4 +59,3 @@
 - [ ] 清除聊天  
 - [x] 支持 markdown 表格、列表渲染(使用~~markdown-it-katex~~markdown-it-multimd-table配合github-markdown.less)
 - [x] 用 vercel 作在线演示  
-- [ ] 用 vercel server 提供无需梯子的 host 代理  
