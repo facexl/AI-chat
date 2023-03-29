@@ -32,6 +32,9 @@
 
 <img src="/docAssets/6.png" alt="示例图片" width="500">
 
+### 7.支持设置google/bing/baidu 搜索时，顺带问问gpt
+
+<img src="/docAssets/7.png" alt="示例图片" width="500">
 
 
 ## 持续开发中的: 
