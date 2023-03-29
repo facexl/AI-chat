@@ -59,3 +59,4 @@
 - [ ] 清除聊天  
 - [x] 支持 markdown 表格、列表渲染(使用~~markdown-it-katex~~markdown-it-multimd-table配合github-markdown.less)
 - [x] 用 vercel 作在线演示  
+- [x] 页面打开情况下，右上角按钮直接打开页面上的聊天界面  

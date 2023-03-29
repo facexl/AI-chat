@@ -90,7 +90,7 @@ const style = ref({
 const panelStyle = ref<{
     [key:string]:string|number
 }>({
-  left:0,
+  right:0,
   top:0
 })
 
@@ -212,6 +212,15 @@ const setPosition = ()=>{
 }
 
 onMounted(()=>{
+  chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if(!state.showtrans){
+      state.showtrans = true
+
+      state.isChat=true
+    }
+  });
+
+
   // 搜索询问gpt
   checkSearchModel()
 

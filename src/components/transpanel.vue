@@ -331,25 +331,31 @@ const check = async ()=>{
 
   host = data.host
       
-  // 右上角弹窗直接聊天 或者设置了直接聊天
+  // 右上角弹窗直接聊天
   if(props.isPopup){
     return
   }
 
   if(props.isChat){
-    msgs.value.push({ 
-      role: 'user', 
-      content: props.select as string
-    })
+    if(props.select){
+      msgs.value.push({ 
+        role: 'user', 
+        content: props.select as string
+      })
+
+      req()
+    }
   }else{
     msgs.value.push({ 
       role: 'user', 
       content: props.select as string,
       tag:data.default_tag || default_tag
     })
+
+    req()
   }
 
-  req()
+  
   
 }
 
