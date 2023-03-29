@@ -5,6 +5,7 @@
     style="position: absolute;left:40%;top:40%;line-height: 1.5;"
   >
     <div>浏览器模式，请划词召唤 AI-chat 小图标</div>
+    <div>你可以随便划词选中这些文本~然后点击鼠标旁的小图标</div>
     <div>
       this is browser mode
     </div>
