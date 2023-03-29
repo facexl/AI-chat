@@ -13,7 +13,7 @@
     "@vueuse/core": "^9.0.2",
     "ant-design-vue": "^3.2.10",
     "axios": "^0.27.2",
-    "browser-ex-storage": "0.0.3",
+    "browser-ex-storage": "0.0.4",
     "eventsource-parser": "^0.1.0",
     "highlight.js": "^11.7.0",
     "lodash.clonedeep": "^4.5.0",
