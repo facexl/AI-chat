@@ -4,11 +4,13 @@
     v-if="!isProd"
     style="position: absolute;left:40%;top:40%;line-height: 1.5;"
   >
+    <div>浏览器模式，请划词召唤 AI-chat 小图标</div>
     <div>
-      this is dev mode
+      this is browser mode
     </div>
     <div>you can select this text</div>
-    <div>Don't forget to disable chrome extensions AI-chat</div>
+    <div>if you install AI-chat chrome extension already</div>
+    <div>don't forget to disable chrome extensions AI-chat</div>
   </div>
 
   <div

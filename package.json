@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite  --config vite.content.config.js",
     "build": "vue-tsc --noEmit && vite build --config vite.content.config.ts && vite build --config vite.popup.config.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:vercel":"vue-tsc --noEmit && vite build --config vite.vercel.config.ts --mode browser"
   },
   "dependencies": {
     "@traptitech/markdown-it-katex": "^3.6.0",

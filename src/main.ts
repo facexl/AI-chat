@@ -3,7 +3,6 @@ import 'uno.css'
 import App from './App.vue'
 import { isProd } from './utils'
 
-
 const prod = ()=>{
   const el = document.createElement('div')
 
