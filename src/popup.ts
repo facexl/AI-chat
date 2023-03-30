@@ -23,26 +23,41 @@ const render = ()=>{
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     // 没有tab页面或者没有激活的Tab页面 直接创建聊天窗口
     if(tabs.length===0 || !tabs[0].active){
-      alert('fail')
-
       render()
-
     }else{
       // 否则给当前页面的插件dom发送消息直接打开
-      const tabId = tabs[0].id
+      const tabId = tabs[0].id as number
 
-      chrome.tabs.sendMessage(tabId as number, {message: "open aichat"},()=>{
-        if (chrome.runtime.lastError && chrome.runtime.lastError.message) {
+      chrome.tabs.get(tabId, function(tab) {
+        if (!tab.url || tab.url.includes('chrome://')) { // 判断是否有正常 url
+          render()
+        } else { // 如果有 url，给当前页面的插件 DOM 发送消息直接打开
+          chrome.tabs.sendMessage(tabId as number, {message: "open aichat"},()=>{
+            if (chrome.runtime.lastError && chrome.runtime.lastError.message) {
+              if(chrome.runtime.lastError.message.includes('Receiving end does not exist')){
+                render()
+              }
 
-          if(chrome.runtime.lastError.message.includes('Receiving end does not exist')){
-            render()
-          }
+              return;
+            }
 
-          return;
+            window.close()
+          });
         }
+      })
 
-        window.close()
-      });
+      //   chrome.tabs.sendMessage(tabId as number, {message: "open aichat"},()=>{
+      //     if (chrome.runtime.lastError && chrome.runtime.lastError.message) {
+
+      //       if(chrome.runtime.lastError.message.includes('Receiving end does not exist')){
+      //         render()
+      //       }
+
+      //       return;
+      //     }
+
+    //     window.close()
+    //   });
     }
 
   });
