@@ -214,6 +214,8 @@ const setPosition = ()=>{
 onMounted(()=>{
   isProd && chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     if(!state.showtrans){
+      selectString.value = ''
+
       state.showtrans = true
 
       state.isChat=true
