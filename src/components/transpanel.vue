@@ -417,6 +417,8 @@ const req = async ()=>{
 
       state.tipMsg = error.message
 
+      state.reqing = false
+
       return
     }
 
