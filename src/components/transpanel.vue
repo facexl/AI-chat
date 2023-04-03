@@ -119,6 +119,22 @@
         v-if="state.showTip"
         class="error"
       >{{ state.tipMsg }}</span>
+      <div class="text-right mb-2px">
+        <!-- <a-button
+          size="small"
+          class="mr-2px"
+          @click="saveThread"
+        >
+          保存聊天
+        </a-button> -->
+        <a-button
+          size="small"
+          class="mr-2px"
+          @click="clearThread"
+        >
+          新聊天
+        </a-button>
+      </div>
       <a-textarea
         ref="textarea"
         v-model:value="state.input"
@@ -132,7 +148,7 @@
 </template>
 <script lang="ts" setup>
 import { createParser } from 'eventsource-parser'
-import { storage,isProd } from '../utils'
+import { storage,isProd,keyer } from '../utils'
 import markdown from 'markdown-it'
 import hljs from 'highlight.js'
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -488,6 +504,28 @@ const req = async ()=>{
 
   
 }
+
+const saveThread = async ()=>{
+  const old = await storage.get('chatRecord')['chatRecord'] || [];
+  
+  const newlist = old.concat([
+    {
+      id:keyer.key,
+      list:msgs.value
+    }
+  ])
+
+  await storage.set({
+    chatRecord:newlist
+  })
+
+  state.tipMsg = '保存成功'
+}
+
+const clearThread = ()=>{
+  msgs.value = []
+}
+
 </script>
 <style lang="less">
 @import './hljs_github_dark.less';
