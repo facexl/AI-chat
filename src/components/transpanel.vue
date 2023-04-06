@@ -14,11 +14,15 @@
       <div class="menus cursor-pointer">
         <span
           class="mr-4px"
-          @click="toogle"
+          @click="state.isDark = !state.isDark"
         >{{ !state.isDark?'dark':'light' }}</span>
         <span
           class="mr-4px"
-          @click="toogleSet"
+          @click="setPageStatus(2)"
+        >历史记录</span>
+        <span
+          class="mr-4px"
+          @click="setPageStatus(1)"
         >设置</span>
         <span
           v-if="!isPopup"
@@ -34,9 +38,14 @@
       </div>
     </div>
     <setinfo
-      v-if="state.showSetInfo"
-      @toogle="toogleSet"
+      v-if="state.pageStatus===1"
+      @toogle="setPageStatus(1)"
       @fresh="check"
+    />
+    <history
+      v-if="state.pageStatus===2"
+      @toogle="setPageStatus(2)"
+      @fresh="setHistory"
     />
     <div
       ref="chatPanle"
@@ -120,13 +129,13 @@
         class="error"
       >{{ state.tipMsg }}</span>
       <div class="text-right mb-2px">
-        <!-- <a-button
+        <a-button
           size="small"
           class="mr-2px"
           @click="saveThread"
         >
           保存聊天
-        </a-button> -->
+        </a-button>
         <a-button
           size="small"
           class="mr-2px"
@@ -154,6 +163,7 @@ import hljs from 'highlight.js'
 import javascript from 'highlight.js/lib/languages/javascript';
 // import mdKatex from '@traptitech/markdown-it-katex' // 这个依赖太重 关键打包里面有 unicode 字符，导致不能在chorme插件的内容js直接运行  
 import mdMultimdTable from 'markdown-it-multimd-table'
+import history from './history.vue'
 
 
 
@@ -203,7 +213,6 @@ const state = reactive({
   tipMsg:'',
   reqing:false,
   isDark:false,
-  showSetInfo:false,
   showSetTag:false,
   tags:[
     {content:`翻译成中文:`},
@@ -211,7 +220,8 @@ const state = reactive({
     {content:`润色这段话:`},
   ],
   betag:'',
-  isFull:false
+  isFull:false,
+  pageStatus:0 as 0 | 1 | 2  // 0 无浮层 1 设置 2 历史
 })
 
 const textarea = ref()
@@ -229,6 +239,14 @@ const setDefaultTag = async (target_tag)=>{
     default_tag:target_tag
   })
   
+}
+
+const setHistory = ()=>{
+
+}
+
+const setPageStatus = (pageStatus)=>{
+  state.pageStatus = state.pageStatus === pageStatus?0:pageStatus
 }
 
 watch(()=>state.tipMsg,()=>{
@@ -308,13 +326,6 @@ const toogleTags = async (item)=>{
 
 }
 
-const toogle = ()=>{
-  state.isDark = !state.isDark
-}
-
-const toogleSet = ()=>{
-  state.showSetInfo = !state.showSetInfo
-}
 
 const check = async ()=>{
   const data = await storage.get(['apikey','host','default_tag','isDark','tags'])
@@ -324,7 +335,7 @@ const check = async ()=>{
   if(!data.apikey){
     state.tipMsg = '检测到未设置 apikey,请点击右上角设置按钮进行设置,apikey 获取方式:https://platform.openai.com/account/api-keys'
 
-    state.showSetInfo = true
+    state.pageStatus = 1
 
     return
   }
@@ -332,7 +343,7 @@ const check = async ()=>{
   if(!data.host){
     state.tipMsg = '检测到未设置 host,请点击右上角设置按钮进行设置'
 
-    state.showSetInfo = true
+    state.pageStatus = 1
 
     return
   }
@@ -506,14 +517,17 @@ const req = async ()=>{
 }
 
 const saveThread = async ()=>{
-  const old = await storage.get('chatRecord')['chatRecord'] || [];
+  const old = (await storage.get('chatRecord'))['chatRecord'] || []
+
+  const d = new Date()
   
-  const newlist = old.concat([
+  const newlist = [
     {
       id:keyer.key,
-      list:msgs.value
+      list:msgs.value,
+      date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`
     }
-  ])
+  ].concat(old)
 
   await storage.set({
     chatRecord:newlist

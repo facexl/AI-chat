@@ -13,6 +13,7 @@ declare module '@vue/runtime-core' {
     ASwitch: typeof import('ant-design-vue/es')['Switch']
     ATag: typeof import('ant-design-vue/es')['Tag']
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
+    History: typeof import('./src/components/history.vue')['default']
     Setinfo: typeof import('./src/components/setinfo.vue')['default']
     Transpanel: typeof import('./src/components/transpanel.vue')['default']
   }
