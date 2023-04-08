@@ -52,11 +52,11 @@
 - [x] tool bar 增加 set 按钮 
 - [x] 右上角点击增加自助翻译  
 - [x] markdownit 和 highlight.js 渲染回答  并且实现 code 代码区明暗主题  
-- [ ] 保留历史对话    
+- [x] 保留历史对话    
 - [x] 浏览器无激活 tab 使用 popup 聊天 ，反之，唤起嵌入到页面的插件  
 - [x] google/baidu/bing 搜索时，顺带问问 gpt (可设置开关)  
 - [x] 优化面板位置调整  
-- [ ] 清除聊天  
+- [x] 清除聊天  
 - [x] 支持 markdown 表格、列表渲染(使用~~markdown-it-katex~~markdown-it-multimd-table配合github-markdown.less)
 - [x] 用 vercel 作在线演示  
 - [x] 页面打开情况下，右上角按钮直接打开页面上的聊天界面  
