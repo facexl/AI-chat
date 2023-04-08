@@ -10,7 +10,19 @@
     :style="style"
   >
     <div class="toolbar">
-      <span class="title">AI-chat</span>
+      <span
+        v-show="state.pageStatus===0"
+        class="title"
+      >
+        AI-chat
+      </span>
+      <span
+        v-show="state.pageStatus!==0"
+        class="title cursor-pointer"
+        @click="setPageStatus(state.pageStatus)"
+      >
+        返回
+      </span>
       <div class="menus cursor-pointer">
         <span
           class="mr-4px"
@@ -45,7 +57,7 @@
     <history
       v-if="state.pageStatus===2"
       @toogle="setPageStatus(2)"
-      @fresh="setHistory"
+      @chooseHistory="setHistory"
     />
     <div
       ref="chatPanle"
@@ -207,6 +219,8 @@ let apikey:string = '';
 
 let host:string = '';
 
+let id = keyer.key
+
 const state = reactive({
   input:'',
   showTip:false,
@@ -228,9 +242,7 @@ const textarea = ref()
 
 const chatPanle = ref()
 
-type msgItem = {role:string,content:string,tag?:string,marked?:string}
-
-const msgs = ref<msgItem[]>([
+const msgs = ref<MsgItem[]>([
 //   { role: 'system', content: 'be nice' }
 ])
 
@@ -241,8 +253,12 @@ const setDefaultTag = async (target_tag)=>{
   
 }
 
-const setHistory = ()=>{
+const setHistory = (item)=>{
+  id = item.id
 
+  msgs.value = item.list
+
+  setPageStatus(0)
 }
 
 const setPageStatus = (pageStatus)=>{
@@ -268,8 +284,6 @@ watch(msgs,()=>{
 })
 
 watch(()=>state.tags,(v)=>{
-
-  console.log(12324,v)
 
   storage.set({
     tags:v
@@ -300,8 +314,6 @@ const addTag = ()=>{
 
 const deltags = (i)=>{
   state.tags.splice(i,1)
-
-  console.log(state.tags,1232435)
 }
 
 const toogleTags = async (item)=>{
@@ -517,15 +529,24 @@ const req = async ()=>{
 }
 
 const saveThread = async ()=>{
-  const old = (await storage.get('chatRecord'))['chatRecord'] || []
+  const old:HistoryItem[] = (await storage.get('chatRecord'))['chatRecord'] || [];
 
-  const d = new Date()
-  
+  const d = new Date();
+
+  const update_time = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;
+
+  const targetIndex = old.findIndex(it=>it.id===id);
+
+  // 是否是更新聊天记录
+  if(targetIndex!==-1){
+    old.splice(targetIndex,1)
+  }
+
   const newlist = [
     {
-      id:keyer.key,
+      id,
       list:msgs.value,
-      date:`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`
+      update_time
     }
   ].concat(old)
 
@@ -537,6 +558,9 @@ const saveThread = async ()=>{
 }
 
 const clearThread = ()=>{
+  // 更新id
+  id = keyer.key
+
   msgs.value = []
 }
 
