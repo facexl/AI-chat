@@ -69,7 +69,7 @@ onMounted(async ()=>{
             font-size: 14px;
             flex-wrap: nowrap;
             white-space: nowrap;
-            border: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--light-border-gray);
             .content{
                 color:var(--ai-chat-font-color);
                 padding:4px;
@@ -80,13 +80,13 @@ onMounted(async ()=>{
                 width:auto;
                 color: #e96900;
                 font-size: 12px;
-                background-color: rgba(27,31,35,.05);
+                background-color: var(--history-gray);
                 padding:4px 8px;
                 border-radius: 3px;
             }
             .del{
                 width:auto;
-                color: red;
+                color: #f50;
                 font-size: 12px;
                 padding:4px 8px;
                 border-radius: 3px;

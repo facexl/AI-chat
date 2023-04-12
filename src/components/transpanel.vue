@@ -575,11 +575,16 @@ const clearThread = ()=>{
     --ai-chat-deep-bg:#f3f3f3;
     --ai-chat-font-color:#000;
     --toolbar-height:30px;
+    --history-orange:#e96900;
+    --history-gray:rgba(27, 31, 35, 0.05);
+    --light-border-gray:#f0f0f0;
 }
 .ai-chat-container-panel-dark{
     --ai-chat-bg:#1e1e20;
     --ai-chat-deep-bg:#101014;
     --ai-chat-font-color:#fff;
+    --history-gray:#000;
+    --light-border-gray:#312f2f;;
 }
 .ai-chat-container-panel{
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
