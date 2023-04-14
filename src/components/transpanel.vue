@@ -258,6 +258,8 @@ const setHistory = (item)=>{
 
   msgs.value = item.list
 
+  console.log(item,1232435)
+
   setPageStatus(0)
 }
 
@@ -545,7 +547,7 @@ const saveThread = async ()=>{
   const newlist = [
     {
       id,
-      list:msgs.value,
+      list:JSON.stringify(msgs.value),
       update_time
     }
   ].concat(old)

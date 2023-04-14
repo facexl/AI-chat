@@ -5,8 +5,13 @@ type MsgItem = {
     marked?:string
 }
 
-type HistoryItem = {
+interface HistoryItem {
     id:string,
-    list:MsgItem[],
+    // list:MsgItem[],
+    list:string,
     update_time:string
+}
+
+interface ParseHistory extends HistoryItem{
+    list:MsgItem[],
 }

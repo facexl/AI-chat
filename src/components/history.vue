@@ -29,7 +29,7 @@ import { storage } from '../utils'
 defineEmits(['chooseHistory'])
 
 const state = reactive<{
-    list:HistoryItem[]
+    list:ParseHistory[]
 }>({
   list:[]
 })
@@ -48,6 +48,10 @@ const del = async (index)=>{
 
 onMounted(async ()=>{
   const chatRecord = (await storage.get('chatRecord'))['chatRecord'] || []
+
+  chatRecord.forEach(it=>{
+    it.list = JSON.parse(it.list)
+  })
 
   state.list = chatRecord
 })
