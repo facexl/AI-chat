@@ -213,11 +213,14 @@ const setPosition = ()=>{
 
 onMounted(()=>{
   isProd && chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    debugger
+
     if(!state.showtrans){
+      debugger
 
       panelStyle.value = {
         right:0,
-        top:window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+        top:(window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)+'px'
       }
 
       selectString.value = ''

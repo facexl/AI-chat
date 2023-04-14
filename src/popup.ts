@@ -21,6 +21,8 @@ const render = ()=>{
 (async ()=>{
 
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    debugger
+
     // 没有tab页面或者没有激活的Tab页面 直接创建聊天窗口
     if(tabs.length===0 || !tabs[0].active){
       render()
