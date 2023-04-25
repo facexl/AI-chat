@@ -12,7 +12,9 @@
 
     "icons":{
         "16":"icon.png",
-        "32":"icon.png"
+        "32":"icon.png",
+        "64":"icon.png",
+        "128":"icon.png"
     },
     
     "options_ui": {
