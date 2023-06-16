@@ -440,7 +440,7 @@ const req = async ()=>{
       },
       body: JSON.stringify({
         stream: true,
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-3.5-turbo-16k',
         messages: msgs.value.map(it=>({
           role:it.role,
           content:it.tag?(it.tag+it.content):it.content
