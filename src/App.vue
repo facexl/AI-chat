@@ -68,6 +68,10 @@ function closePanel() {
   isChatMode.value = false
 }
 
+function hideIcon() {
+  showIcon.value = false
+}
+
 // Check search engine pages
 async function checkSearchModel() {
   const searchGpt = await storage.get('searchGpt').then(d => d.searchGpt as boolean)
@@ -134,6 +138,17 @@ onMounted(() => {
   setupMessageListener()
   checkSearchModel()
   document.addEventListener('mouseup', onMouseUp)
+  document.addEventListener('mousedown', onMouseDown)
+  window.addEventListener('scroll', hideIcon)
   console.log('[AI-chat] App mounted, mouseup listener registered')
 })
+
+function onMouseDown(e: MouseEvent) {
+  const insideIcon = e.composedPath().some(
+    el => el instanceof HTMLElement && el.classList.contains('floating-icon'),
+  )
+  if (showIcon.value && !insideIcon) {
+    hideIcon()
+  }
+}
 </script>
