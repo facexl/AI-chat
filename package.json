@@ -1,46 +1,37 @@
 {
   "name": "aichat",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
   "scripts": {
-    "dev": "vite  --config vite.content.config.js",
-    "build": "vue-tsc --noEmit && vite build --config vite.content.config.ts && vite build --config vite.popup.config.ts",
-    "preview": "vite preview",
-    "build:vercel":"vue-tsc --noEmit && vite build --config vite.vercel.config.ts --mode browser"
+    "dev": "vite --mode content",
+    "build": "npm run build:content && npm run build:popup && npm run build:background",
+    "build:content": "vite build --mode content",
+    "build:popup": "vite build --mode popup",
+    "build:background": "vite build --mode background",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@traptitech/markdown-it-katex": "^3.6.0",
-    "@vueuse/core": "^9.0.2",
-    "ant-design-vue": "^3.2.10",
-    "axios": "^0.27.2",
-    "browser-ex-storage": "0.0.4",
-    "eventsource-parser": "^0.1.0",
-    "highlight.js": "^11.7.0",
-    "lodash.clonedeep": "^4.5.0",
-    "markdown-it": "^13.0.1",
+    "@vueuse/core": "^10.11.0",
+    "ant-design-vue": "^4.2.0",
+    "eventsource-parser": "^3.0.0",
+    "highlight.js": "^11.10.0",
+    "markdown-it": "^14.1.0",
     "markdown-it-multimd-table": "^4.2.1",
-    "unocss": "^0.50.4",
-    "vue": "^3.2.45"
+    "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.220",
-    "@types/node": "^18.6.3",
-    "@typescript-eslint/eslint-plugin": "^5.32.0",
-    "@typescript-eslint/parser": "^5.32.0",
-    "@vitejs/plugin-vue": "4.0.0",
-    "chalk": "^5.0.1",
-    "eslint": "^8.21.0",
-    "eslint-plugin-vue": "^9.3.0",
-    "husky": "^8.0.1",
-    "less": "^4.1.3",
-    "lint-staged": "^13.0.3",
-    "terser": "^5.16.5",
-    "typescript": "^4.9.3",
-    "unplugin-auto-import": "^0.10.3",
-    "unplugin-vue-components": "^0.21.2",
-    "vite": "4.1.4",
-    "vue-eslint-parser": "^9.0.3",
-    "vue-tsc": "^1.0.24"
+    "@types/chrome": "^0.0.270",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "less": "^4.2.0",
+    "typescript": "^5.5.0",
+    "unocss": "^66.7.5",
+    "unplugin-auto-import": "^21.0.0",
+    "unplugin-vue-components": "^32.1.0",
+    "vite": "^8.1.5",
+    "vue-tsc": "^2.1.0"
   }
 }

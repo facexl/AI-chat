@@ -1,45 +1,35 @@
 {
     "manifest_version": 3,
-  
     "name": "AI-chat",
-    "description": "AI-chat 是一款 openai chatGpt api 驱动的划词聊天、划词翻译 chrome 插件，支持预设引导语,支持聊天",
-    "version": "1.0",
-  
+    "description": "AI-chat 是一款 AI 驱动的划词聊天、划词翻译 Chrome 插件，支持预设引导语",
+    "version": "2.0.0",
+    "minimum_chrome_version": "88",
     "action": {
-      "default_icon": "icon.png",
-      "default_popup": "popup.html"
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
     },
-
-    "icons":{
-        "16":"icon.png",
-        "32":"icon.png",
-        "64":"icon.png",
-        "128":"icon.png"
+    "icons": {
+        "16": "icon.png",
+        "32": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
     },
-    
-    "options_ui": {
-      "page": "popup.html"
-    },
-    "web_accessible_resources": [
-      {
-        "resources": ["style.css","icon.png"],
-        "matches": ["<all_urls>"]
-      }
-    ],
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "all_frames": true,
-            "js": ["aichat.iife.js"]
+            "js": ["content.js"],
+            "run_at": "document_idle"
         }
     ],
-  
-  
-    "permissions": [
-      "storage",
-      "tabs"
+    "web_accessible_resources": [
+        {
+            "resources": ["aichat.css", "icon.png"],
+            "matches": ["<all_urls>"]
+        }
     ],
-  
-    "host_permissions": ["https://*.openai.com/"]
-  }
-  
+    "permissions": ["storage", "tabs"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "host_permissions": ["https://dashscope.aliyuncs.com/*", "https://coding.dashscope.aliyuncs.com/*"]
+}

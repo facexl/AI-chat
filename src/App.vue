@@ -1,315 +1,139 @@
-
 <template>
-  <div
-    v-if="!isProd"
-    style="position: absolute;left:40%;top:40%;line-height: 1.5;"
-  >
-    <div>AI-chat 在线演示</div>
-    <div>你可以随便划词选中这些文本~然后点击鼠标旁的小图标</div>
-    <div>
-      this is browser mode
-    </div>
-    <div>you can select this text</div>
-    <div>if you install AI-chat chrome extension already</div>
-    <div>don't forget to disable chrome extensions AI-chat</div>
-    <div class="mt-16px">
-      <a
-        target="__blank"
-        href="https://github.com/facexl/AI-chat"
-      >本项目 github 地址</a>   
-    </div>
-  </div>
+  <!-- Floating icon (shown on text selection) -->
+  <FloatingIcon
+    v-if="showIcon"
+    :style="iconStyle"
+    @click="openPanel(false)"
+  />
 
-  <div
-    v-show="state.showicon"
-    ref="icon"
-    class="ai-chat-container"
-    :style="style"
-  >
-    <img
-      class="icon"
-      :src="iconimgUrl"
-      alt="AI-chat图标"
-      :class="{
-        rotate:useRotate
-      }"
-      @mouseover="mouseover"
-      @click="state.showtrans=true;state.isChat=false"
-      @mouseleave="useRotate=false"
-    >
-  </div>
-  <transpanel
-    v-if="state.showtrans"
-    ref="panel"
-    class="ai-chat-container-panel"
-    :style="panelStyle"
-    :select="selectString"
-    :is-chat="state.isChat"
-    @close="state.showtrans=false;state.isChat=false"
+  <!-- Chat panel -->
+  <ChatPanel
+    v-if="showPanel"
+    :panel-style="panelPosition"
+    :select="selectedText"
+    :is-chat="isChatMode"
+    @close="closePanel"
   />
 </template>
 
-
-<script setup lang="ts"> 
-
-import { useMouse } from '@vueuse/core'
-import transpanel from './components/transpanel.vue'
-import { isProd,storage } from './utils'
+<script setup lang="ts">
+import ChatPanel from './components/ChatPanel.vue'
+import FloatingIcon from './components/FloatingIcon.vue'
+import { storage } from './utils/storage'
 import config from './config'
 
-const iconimgUrl = ref('/icon.png')
+const showIcon = ref(false)
+const showPanel = ref(false)
+const selectedText = ref('')
+const isChatMode = ref(false)
 
-if(chrome && chrome.runtime){
-  iconimgUrl.value = chrome.runtime.getURL('/icon.png')
-}
+// Frozen mouse position at selection time
+const iconX = ref(0)
+const iconY = ref(0)
 
-const selectString = ref('')
+const iconStyle = computed(() => ({
+  position: 'fixed' as const,
+  left: iconX.value + 8 + 'px',
+  top: iconY.value + 8 + 'px',
+}))
 
-const useRotate = ref()
+const panelPosition = ref({ top: '100px', left: '100px' })
 
-const icon = ref()
+function calculatePanelPosition() {
+  const pw = 550
+  const ph = 480
+  const scrollX = window.scrollX || document.documentElement.scrollLeft
+  const scrollY = window.scrollY || document.documentElement.scrollTop
+  const ww = window.innerWidth + scrollX
+  const wh = window.innerHeight + scrollY
 
-const panel = ref()
+  const left = iconX.value + pw > ww ? iconX.value - pw : iconX.value
+  const top = iconY.value + ph / 2 > wh ? iconY.value - ph : iconY.value
 
-const { x, y } = useMouse()
-
-const state = reactive({
-  showicon:false,
-  showtrans:false,
-  isChat:false
-})
-
-
-let timer;
-
-const style = ref({
-  left:'',
-  top:''
-})
-
-const panelStyle = ref<{
-    [key:string]:string|number
-}>({
-  right:0,
-  top:0
-})
-
-const down = (event)=>{
-  const target = state.showtrans?panel.value.$el:icon.value;
-
-  // shadow dom 和 普通 dom 这里判断不一样
-  const isClickInsideTargetDiv = isProd?event.composedPath().includes(target):target?.contains(event.target);
-
-  if (!isClickInsideTargetDiv) {
-    state.showicon = false
-
-    state.showtrans = false
-
-    document.removeEventListener('mousedown',down)
+  panelPosition.value = {
+    left: left + 'px',
+    top: top + 'px',
   }
 }
 
-const getScrollMsg = ()=>{
-  return {
-    height:document.documentElement.scrollTop || document.body.scrollTop,
-    width:document.documentElement.scrollLeft || document.body.scrollLeft
-  }
+function openPanel(chat: boolean) {
+  showIcon.value = false
+  isChatMode.value = chat
+  calculatePanelPosition()
+  showPanel.value = true
 }
 
-const checkSearchModel = async ()=>{
-  const { searchGpt } = await storage.get('searchGpt')
+function closePanel() {
+  showPanel.value = false
+  isChatMode.value = false
+}
 
-  if(!searchGpt)return
+// Check search engine pages
+async function checkSearchModel() {
+  const searchGpt = await storage.get('searchGpt').then(d => d.searchGpt as boolean)
+  if (!searchGpt) return
 
-  config.hosts.forEach(it=>{
-    if(location.host===it.host && location.pathname===it.path){
+  for (const it of config.hosts) {
+    if (location.host === it.host && location.pathname === it.path) {
       const res = location.href.match(it.reg)
+      if (res && res[0] && res[1]) {
+        isChatMode.value = true
+        selectedText.value = decodeURIComponent(res[1])
+        panelPosition.value = { top: '0px', left: '0px' }
+        showPanel.value = true
 
-      //   const res = location.href.match(/(?<=\?wd=)[^&]*/)
-
-      if(res && res[0] && res[1]){
-        panelStyle.value = {
-          right:0,
-          top:0
+        if (it.effect) {
+          it.effect(() => {
+            showPanel.value = false
+            setTimeout(checkSearchModel, 100)
+          })
         }
-
-        state.isChat = true
-
-        state.showtrans = true
-
-        selectString.value = decodeURIComponent(res[1])
-
-        it.effect && it.effect(()=>{
-
-          state.showtrans = false
-
-          setTimeout(()=>{
-            checkSearchModel()
-          },100)
-        })
-
       }
     }
-  })
-}
-
-const setPosition = ()=>{
-  
-  const icon = 30
-
-  const offset = 8
-
-  const offseticon = offset+icon
-
-  let left = 0
-
-  let top = 0
-
-  const panelWidth = 550
-
-  const panelHeight = 480
-
-  const scroll = getScrollMsg()
-
-  const realInnerWidth = innerWidth+scroll.width
-
-  const realInnerHeight = innerHeight+scroll.height
-
-  if(x.value+offseticon>realInnerWidth){
-    left = x.value-offseticon
-  }else{
-    left = x.value+offset
-  }
-
-  if(y.value+offseticon>realInnerHeight){
-    top = y.value-offseticon
-  }else{
-    top = y.value+offset
-  }
-
-
-  const panelRes = {} as any
-  
-  if(x.value+panelWidth>realInnerWidth){
-    panelRes.left=`${x.value-panelWidth}px`
-  }else{
-    panelRes.left = `${x.value-offseticon}px`
-  }
-
-  if(y.value+panelHeight/2>realInnerHeight){
-    panelRes.top=`${y.value-panelHeight}px`
-  }else{
-    panelRes.top = y.value+'px'
-  }
-
-  panelStyle.value = panelRes
-  
-
-  style.value = {
-    left:left+'px',
-    top:top+'px'
   }
 }
 
-onMounted(()=>{
-  isProd && chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    debugger
-
-    if(!state.showtrans){
-      debugger
-
-      panelStyle.value = {
-        right:0,
-        top:(window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0)+'px'
-      }
-
-      selectString.value = ''
-
-      state.showtrans = true
-
-      state.isChat=true
+// Text selection handler
+function onMouseUp(e: MouseEvent) {
+  const mx = e.clientX
+  const my = e.clientY
+  setTimeout(() => {
+    if (showPanel.value) return
+    const sel = window.getSelection()
+    const text = sel?.toString().trim()
+    if (text && text.length > 0) {
+      selectedText.value = text
+      iconX.value = mx
+      iconY.value = my
+      showIcon.value = true
+      console.log('[AI-chat] selection detected, showing icon')
     }
-  });
-  
+  }, 0)
+}
 
+// Chrome runtime message handler
+function setupMessageListener() {
+  if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
+    chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
+      if (request.message === 'open aichat' && !showPanel.value) {
+        selectedText.value = ''
+        isChatMode.value = true
+        panelPosition.value = {
+          top: (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) + 'px',
+          left: '0px',
+        }
+        showPanel.value = true
+        sendResponse?.({ ok: true })
+      }
+      return true // Signal async response to prevent popup fallback
+    })
+  }
+}
 
-  // 搜索询问gpt
+onMounted(() => {
+  setupMessageListener()
   checkSearchModel()
-
-  document.addEventListener('mouseup',()=>{ 
-    setTimeout(()=>{
-      const selectedText = document?.getSelection()?.toString();
-
-      if(selectedText && selectedText.length > 0 && !state.showicon && !state.showtrans) {
-        console.log(selectedText)
-
-        state.showicon = true
-
-        selectString.value = selectedText
-
-        setPosition()
-
-        setTimeout(()=>{
-          document.addEventListener('mousedown',down,false)
-        },0)
-      }
-    },0)
-  })
-
-  if(!isProd){
-    window.onresize = setPosition
-  }
+  document.addEventListener('mouseup', onMouseUp)
+  console.log('[AI-chat] App mounted, mouseup listener registered')
 })
-
-const mouseover = ()=>{
-  useRotate.value = true
-
-  clearTimeout(timer)
-
-  timer = setTimeout(_=>{
-    if(useRotate.value && !state.showtrans){
-      state.showtrans = true
-
-      state.isChat=false
-    }
-  },1000)
-}
-
 </script>
-<style lang="less">
-
-.ai-chat-container{
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-  font-size: 14px;
-  text-size-adjust: 100% !important; 
-    position: absolute;
-    z-index:2147483647;
-    background-color: #fff;
-    // user-select: none;
-    cursor: pointer;
-    .icon{
-        width: 30px;
-    }
-    .rotate{
-        animation: rotate 1s infinite linear;
-    }
-}
-
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-</style>

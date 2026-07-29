@@ -43,7 +43,7 @@
 
 - [x] 使用 shodow dom 避免 css 污染
 - [x] popup.html ui 优化一下  
-- [ ] 翻译面板增加固钉、拖拽  
+- [x] 翻译面板增加固钉、拖拽  
 - [x] 增加放大全屏  
 - [x] 面板位置 不要跑出屏幕  
 - [x] 切换到 stream 请求  
@@ -60,5 +60,4 @@
 - [x] 支持 markdown 表格、列表渲染(使用~~markdown-it-katex~~markdown-it-multimd-table配合github-markdown.less)
 - [x] 用 vercel 作在线演示  
 - [x] 页面打开情况下，右上角按钮直接打开页面上的聊天界面  
-- [ ] 提供请求返回前结束请求(abort)  
-- [ ] 交互优化 
+- [x] 交互优化 
