@@ -53,9 +53,3 @@ pnpm typecheck
 #### 6. 点击右上角插件图标快速聊天
 
 <img src="/docAssets/6.png" alt="示例图片" width="500">
-
-#### 7. 搜索时自动询问 AI
-
-支持 Google / Bing / Baidu 搜索时自动弹出面板询问 AI（可在设置中开关）。
-
-<img src="/docAssets/7.png" alt="示例图片" width="500">

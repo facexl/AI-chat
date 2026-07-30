@@ -18,15 +18,6 @@
         />
       </div>
 
-      <div class="settings-row">
-        <span>搜索时自动询问 AI:</span>
-        <span
-          class="toggle-switch"
-          :class="{ active: form.searchGpt }"
-          @click="form.searchGpt = !form.searchGpt"
-        />
-      </div>
-
       <div class="settings-divider" />
 
       <div class="platform-info">
@@ -61,7 +52,6 @@ const { loadAll, saveSettings } = useStorage()
 const form = reactive({
   apikey: '',
   provider: 'dashscope',
-  searchGpt: false,
 })
 
 const selectedProvider = computed<ProviderConfig | undefined>(() => getProvider(form.provider))
@@ -70,14 +60,12 @@ onMounted(async () => {
   const data = await loadAll()
   form.apikey = data.apikey
   form.provider = data.provider
-  form.searchGpt = data.searchGpt
 })
 
 async function submit() {
   await saveSettings({
     apikey: form.apikey,
     provider: form.provider,
-    searchGpt: form.searchGpt,
   })
   emit('close')
   emit('saved')

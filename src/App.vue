@@ -19,8 +19,6 @@
 <script setup lang="ts">
 import ChatPanel from './components/ChatPanel.vue'
 import FloatingIcon from './components/FloatingIcon.vue'
-import { storage } from './utils/storage'
-import config from './config'
 
 const showIcon = ref(false)
 const showPanel = ref(false)
@@ -81,31 +79,6 @@ function hideIcon() {
   showIcon.value = false
 }
 
-// Check search engine pages
-async function checkSearchModel() {
-  const searchGpt = await storage.get('searchGpt').then(d => d.searchGpt as boolean)
-  if (!searchGpt) return
-
-  for (const it of config.hosts) {
-    if (location.host === it.host && location.pathname === it.path) {
-      const res = location.href.match(it.reg)
-      if (res && res[0] && res[1]) {
-        isChatMode.value = true
-        selectedText.value = decodeURIComponent(res[1])
-        panelPosition.value = getCenterPosition()
-        showPanel.value = true
-
-        if (it.effect) {
-          it.effect(() => {
-            showPanel.value = false
-            setTimeout(checkSearchModel, 100)
-          })
-        }
-      }
-    }
-  }
-}
-
 // Text selection handler
 function onMouseUp(e: MouseEvent) {
   const mx = e.clientX
@@ -142,7 +115,6 @@ function setupMessageListener() {
 
 onMounted(() => {
   setupMessageListener()
-  checkSearchModel()
   document.addEventListener('mouseup', onMouseUp)
   document.addEventListener('mousedown', onMouseDown)
   window.addEventListener('scroll', hideIcon)

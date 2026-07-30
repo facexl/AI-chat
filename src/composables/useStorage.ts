@@ -9,19 +9,18 @@ export function useStorage() {
   ]
 
   async function loadAll() {
-    const data = await storage.get(['apikey', 'provider', 'default_tag', 'isDark', 'tags', 'searchGpt', 'model'])
+    const data = await storage.get(['apikey', 'provider', 'default_tag', 'isDark', 'tags', 'model'])
     return {
       apikey: data.apikey as string || '',
       provider: data.provider as string || 'dashscope',
       defaultTag: data.default_tag as string || '',
       isDark: data.isDark as boolean || false,
       tags: Array.isArray(data.tags) ? data.tags : DEFAULT_TAGS,
-      searchGpt: data.searchGpt as boolean || false,
       model: data.model as string || '',
     }
   }
 
-  async function saveSettings(settings: { apikey: string; provider: string; searchGpt: boolean }) {
+  async function saveSettings(settings: { apikey: string; provider: string }) {
     return storage.set(settings)
   }
 
@@ -37,11 +36,6 @@ export function useStorage() {
     return storage.set({ default_tag: tag })
   }
 
-  async function getSearchGpt(): Promise<boolean> {
-    const data = await storage.get('searchGpt')
-    return (data.searchGpt as boolean) || false
-  }
-
   async function saveModel(model: string) {
     return storage.set({ model })
   }
@@ -53,7 +47,6 @@ export function useStorage() {
     saveTags,
     saveDarkMode,
     saveDefaultTag,
-    getSearchGpt,
     saveModel,
   }
 }

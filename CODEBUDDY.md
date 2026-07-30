@@ -92,7 +92,3 @@ src/
 - **阿里云 DashScope** (Qwen) / **硅基流动 SiliconFlow** / **Groq**
 
 用户可在设置面板选择提供商和输入对应 API Key，数据持久化在 `chrome.storage`。
-
-## 搜索集成
-
-在 Google / Baidu / Bing 搜索时，如果开启了 `searchGpt` 开关，会自动弹出 ChatPanel 用搜索词询问 AI。配置在 `src/config.ts`。
