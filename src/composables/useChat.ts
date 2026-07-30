@@ -1,7 +1,8 @@
 import { streamChat } from '../api/chat'
+import { getProvider } from '../api/providers'
 import { renderMarkdown } from '../utils/markdown'
 import { storage } from '../utils/storage'
-import type { MsgItem, TagItem, HistoryItem } from '../types'
+import type { MsgItem } from '../types'
 
 export function useChat() {
   const msgs = ref<MsgItem[]>([])
@@ -24,7 +25,7 @@ export function useChat() {
     })
   }
 
-  function updateLastMessage(content: string, taggedContent: string) {
+  function updateLastMessage(content: string, _taggedContent: string) {
     const last = msgs.value[msgs.value.length - 1]
     if (last && last.role === 'assistant') {
       const fullContent = content
@@ -37,9 +38,15 @@ export function useChat() {
     }
   }
 
-  async function sendRequest(apiKey: string, host: string, model: string) {
+  async function sendRequest(apiKey: string, providerId: string, model: string) {
     if (reqing.value) {
       errorMsg.value = '请等待上一条回复完成'
+      return
+    }
+
+    const provider = getProvider(providerId)
+    if (!provider) {
+      errorMsg.value = '无效的模型提供商'
       return
     }
 
@@ -55,7 +62,7 @@ export function useChat() {
     let fullContent = ''
 
     try {
-      const gen = streamChat(messages, apiKey, host, model)
+      const gen = streamChat(messages, apiKey, model, provider)
 
       for await (const chunk of gen) {
         fullContent += chunk
@@ -74,7 +81,7 @@ export function useChat() {
     msgs.value = []
   }
 
-  function loadHistory(item: HistoryItem) {
+  function loadHistory(item: { id: string; list: MsgItem[] }) {
     chatThreadId.value = item.id
     msgs.value = item.list
   }

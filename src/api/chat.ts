@@ -1,51 +1,34 @@
-import type { DashScopeMessage } from '../types'
+import type { Message } from '../types'
+import type { ProviderConfig } from './providers'
 
-const API_ENDPOINT = 'https://coding.dashscope.aliyuncs.com/apps/anthropic/v1/messages'
-
-export const MODELS = [
-  { id: 'qwen3.6-plus', label: 'Qwen 3.6 Plus' },
-  { id: 'qwen3.7-plus', label: 'Qwen 3.7 Plus' },
-  { id: 'qwen3.5-plus', label: 'Qwen 3.5 Plus' },
-  { id: 'kimi-k2.5', label: 'Kimi K2.5' },
-  { id: 'glm-5', label: 'GLM-5' },
-  { id: 'glm-4.7', label: 'GLM-4.7' },
-  { id: 'MiniMax-M2.5', label: 'MiniMax M2.5' },
-  { id: 'qwen3-max-2026-01-23', label: 'Qwen3 Max' },
-  { id: 'qwen3-coder-next', label: 'Qwen3 Coder Next' },
-  { id: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus' },
-]
-
-export const DEFAULT_MODEL = 'qwen3.6-plus'
+/**
+ * Build the full endpoint URL from the provider config.
+ * Gemini uses a special URL structure: endpoint/model:streamGenerateContent?alt=sse&key=API_KEY
+ */
+function buildUrl(provider: ProviderConfig, model: string, apiKey: string): string {
+  if (provider.apiFormat === 'gemini') {
+    return `${provider.endpoint}/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`
+  }
+  return provider.endpoint
+}
 
 export async function* streamChat(
-  messages: DashScopeMessage[],
+  messages: Message[],
   apiKey: string,
-  host: string,
   model: string,
+  provider: ProviderConfig,
 ): AsyncGenerator<string, void, unknown> {
-  const endpoint = host || API_ENDPOINT
-
-  const body = JSON.stringify({
-    model,
-    max_tokens: 1000,
-    messages: messages.map(m => ({
-      role: m.role,
-      content: m.content,
-    })),
-    stream: true,
-  })
+  const url = buildUrl(provider, model, apiKey)
+  const body = provider.buildBody(model, messages, true)
+  const headers = provider.headers(apiKey)
 
   // Proxy through background service worker for true streaming
   if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
     const response: { ok: boolean; error?: string; stream?: boolean; streamId?: string } =
       await chrome.runtime.sendMessage({
         type: 'API_FETCH',
-        url: endpoint,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-        },
+        url,
+        headers,
         body,
       })
 
@@ -54,9 +37,8 @@ export async function* streamChat(
     }
 
     if (response.stream && response.streamId) {
-      // Connect to the stream port
       const port = chrome.runtime.connect({ name: response.streamId })
-      yield* portToAsyncIterable(port)
+      yield* portToAsyncIterable(port, provider)
       return
     }
 
@@ -64,13 +46,9 @@ export async function* streamChat(
   }
 
   // Fallback: direct fetch (dev mode without extension)
-  const res = await fetch(endpoint, {
+  const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
+    headers,
     body,
   })
 
@@ -78,31 +56,46 @@ export async function* streamChat(
     let errorMsg = `HTTP ${res.status}`
     try {
       const errData = await res.json()
-      errorMsg = errData.error?.message || errData.message || errData.code || errorMsg
+      errorMsg = (errData as Record<string, unknown>).error as string
+        || (errData as Record<string, unknown>).message as string
+        || errorMsg
     } catch { /* ignore */ }
     throw new Error(errorMsg)
   }
 
   if (res.body) {
-    yield* parseSSEStream(res.body.getReader())
+    yield* parseSSEStream(res.body.getReader(), provider)
   }
 }
 
 /**
- * Convert a Chrome runtime port into an async iterable of tokens.
+ * Convert a Chrome runtime port into an async iterable of text tokens.
+ * Content script-side SSE parsing - background sends raw data: line JSON.
  */
-async function* portToAsyncIterable(port: chrome.runtime.Port): AsyncGenerator<string, void, unknown> {
+async function* portToAsyncIterable(
+  port: chrome.runtime.Port,
+  provider: ProviderConfig,
+): AsyncGenerator<string, void, unknown> {
   const queue: Array<{ value: string } | { error: Error }> = []
   let resolveNext: ((result: IteratorResult<string, void>) => void) | null = null
   let streamEnded = false
 
   port.onMessage.addListener((msg: { type: string; data?: string; error?: string }) => {
-    if (msg.type === 'token' && msg.data) {
-      if (resolveNext) {
-        resolveNext({ value: msg.data, done: false })
-        resolveNext = null
-      } else {
-        queue.push({ value: msg.data })
+    if (msg.type === 'data' && msg.data) {
+      try {
+        const json = JSON.parse(msg.data)
+        const token = provider.parseSSEData(json)
+        if (token) {
+          const item = { value: token }
+          if (resolveNext) {
+            resolveNext(item)
+            resolveNext = null
+          } else {
+            queue.push(item)
+          }
+        }
+      } catch {
+        // skip malformed JSON
       }
     } else if (msg.type === 'done') {
       streamEnded = true
@@ -112,13 +105,12 @@ async function* portToAsyncIterable(port: chrome.runtime.Port): AsyncGenerator<s
       }
       port.disconnect()
     } else if (msg.type === 'error') {
-      const err = new Error(msg.error || 'Stream error')
+      queue.push({ error: new Error(msg.error || 'Stream error') })
       if (resolveNext) {
-        resolveNext = Promise.reject(err) as any
+        resolveNext({ value: undefined as any, done: false })
         resolveNext = null
-      } else {
-        queue.push({ error: err })
       }
+      streamEnded = true
       port.disconnect()
     }
   })
@@ -146,11 +138,27 @@ async function* portToAsyncIterable(port: chrome.runtime.Port): AsyncGenerator<s
     })
 
     if (result.done) return
+
+    // Check queue for errors that may have arrived during await
+    if (queue.length > 0) {
+      const item = queue.shift()!
+      if ('error' in item) throw item.error
+      // Re-insert token at front of queue, yield result first
+      queue.unshift(item)
+    }
+
     yield result.value
   }
 }
 
-async function* parseSSEStream(reader: ReadableStreamDefaultReader<Uint8Array>): AsyncGenerator<string, void, unknown> {
+/**
+ * SSE stream parser (dev mode fallback, no service worker).
+ * Parses on the client side using provider's parseSSEData.
+ */
+async function* parseSSEStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  provider: ProviderConfig,
+): AsyncGenerator<string, void, unknown> {
   const decoder = new TextDecoder('utf-8')
   let buffer = ''
 
@@ -171,11 +179,10 @@ async function* parseSSEStream(reader: ReadableStreamDefaultReader<Uint8Array>):
 
       try {
         const event = JSON.parse(jsonStr)
-        if (event.type === 'content_block_delta' && event.delta?.text) {
-          yield event.delta.text
-        }
+        const token = provider.parseSSEData(event)
+        if (token) yield token
       } catch {
-        // skip
+        // skip malformed lines
       }
     }
   }

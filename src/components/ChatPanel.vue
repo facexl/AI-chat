@@ -30,7 +30,7 @@
         class="model-select"
         @change="onModelChange"
       >
-        <option v-for="m in MODELS" :key="m.id" :value="m.id">{{ m.label }}</option>
+        <option v-for="m in providerModels" :key="m.id" :value="m.id">{{ m.label }}</option>
       </select>
       <div class="toolbar-menus">
         <span class="menu-item" @click="toggleTheme">{{ isDark ? 'light' : 'dark' }}</span>
@@ -155,8 +155,7 @@ import HistoryList from './HistoryList.vue'
 import { useStorage } from '../composables/useStorage'
 import { useChat } from '../composables/useChat'
 import { useTheme } from '../composables/useTheme'
-import { renderMarkdown } from '../utils/markdown'
-import { MODELS, DEFAULT_MODEL } from '../api/chat'
+import { getProviderModels, getDefaultModel } from '../api/providers'
 import type { TagItem, ParseHistory } from '../types'
 
 const props = defineProps<{
@@ -188,7 +187,12 @@ const editingTagValue = ref('')
 const chatScroll = ref<HTMLElement>()
 const textareaRef = ref<HTMLTextAreaElement>()
 const panelRoot = ref<HTMLElement>()
-const currentModel = ref(DEFAULT_MODEL)
+
+// Provider-based model selection
+const providerId = ref('dashscope')
+const currentModel = ref('')
+
+const providerModels = computed(() => getProviderModels(providerId.value))
 
 function onModelChange() {
   saveModel(currentModel.value)
@@ -205,8 +209,6 @@ let dragPanelStartY = 0
 
 const computedStyle = computed(() => {
   const base = { ...props.panelStyle } as Record<string, string>
-  // Only apply left/top offsets for absolute positioning (content script mode).
-  // In popup mode (position: relative), offsets would visually shift the panel.
   if (base.position !== 'relative') {
     base.left = panelLeft.value + 'px'
     base.top = panelTop.value + 'px'
@@ -215,13 +217,14 @@ const computedStyle = computed(() => {
 })
 
 function initPosition() {
-  panelLeft.value = parseFloat(props.panelStyle?.left as string || '100')
-  panelTop.value = parseFloat(props.panelStyle?.top as string || '100')
+  const defaultLeft = Math.max(0, (window.innerWidth - 550) / 2)
+  const defaultTop = Math.max(0, (window.innerHeight - 480) / 2)
+  panelLeft.value = parseFloat(props.panelStyle?.left as string || String(defaultLeft))
+  panelTop.value = parseFloat(props.panelStyle?.top as string || String(defaultTop))
 }
 
 function startDrag(e: MouseEvent) {
   if (isFull.value) return
-  // Ignore clicks on interactive menu items
   const target = e.target as HTMLElement
   if (target.closest('span')) return
 
@@ -252,7 +255,6 @@ function stopDrag() {
 }
 
 let apiKey = ''
-let host = ''
 
 function setPageStatus(status: 0 | 1 | 2) {
   pageStatus.value = pageStatus.value === status ? 0 : status
@@ -330,7 +332,7 @@ async function applyTag(item: TagItem) {
   await saveDefaultTag(item.content)
   showTagPanel.value = false
   addUserMessage(props.select || '', item.content)
-  sendRequest(apiKey, host, currentModel.value)
+  sendRequest(apiKey, providerId.value, currentModel.value)
 }
 
 function send() {
@@ -343,7 +345,7 @@ function send() {
     addUserMessage(text)
     inputText.value = ''
     textareaRef.value?.blur()
-    sendRequest(apiKey, host, currentModel.value)
+    sendRequest(apiKey, providerId.value, currentModel.value)
   }
 }
 
@@ -355,19 +357,27 @@ function selectHistory(item: ParseHistory) {
 async function loadSettings() {
   const data = await loadAll()
   apiKey = data.apikey
-  host = data.host
-  currentModel.value = (data as any).model || DEFAULT_MODEL
+
+  // Reset model when provider changes, or use stored model if still valid
+  const prevProvider = providerId.value
+  providerId.value = data.provider
+  const models = getProviderModels(providerId.value)
+  const modelExists = models.some(m => m.id === data.model)
+  if (prevProvider !== data.provider || !modelExists) {
+    currentModel.value = getDefaultModel(providerId.value)
+    saveModel(currentModel.value)
+  } else {
+    currentModel.value = data.model
+  }
+
   setDark(data.isDark)
   tagsSaveSkipped = true
   tags.value = Array.isArray(data.tags) ? [...data.tags] : [...DEFAULT_TAGS]
 
   if (!apiKey) {
-    errorMsg.value = '请设置 DashScope API Key'
+    errorMsg.value = '请设置 API Key'
     pageStatus.value = 1
     return
-  }
-  if (!host) {
-    host = ''
   }
 
   // In popup mode, just load settings
@@ -381,7 +391,7 @@ async function loadSettings() {
       const defaultTag = data.defaultTag || '翻译成中文:'
       addUserMessage(props.select, defaultTag)
     }
-    sendRequest(apiKey, host, currentModel.value)
+    sendRequest(apiKey, providerId.value, currentModel.value)
   }
 }
 

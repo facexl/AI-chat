@@ -37,7 +37,16 @@ const iconStyle = computed(() => ({
   top: iconY.value + 8 + 'px',
 }))
 
-const panelPosition = ref({ top: '100px', left: '100px' })
+const panelPosition = ref(getCenterPosition())
+
+function getCenterPosition() {
+  const pw = 550
+  const ph = 480
+  return {
+    left: Math.max(0, (window.innerWidth - pw) / 2) + 'px',
+    top: Math.max(0, (window.innerHeight - ph) / 2) + 'px',
+  }
+}
 
 function calculatePanelPosition() {
   const pw = 550
@@ -83,7 +92,7 @@ async function checkSearchModel() {
       if (res && res[0] && res[1]) {
         isChatMode.value = true
         selectedText.value = decodeURIComponent(res[1])
-        panelPosition.value = { top: '0px', left: '0px' }
+        panelPosition.value = getCenterPosition()
         showPanel.value = true
 
         if (it.effect) {
@@ -122,10 +131,7 @@ function setupMessageListener() {
       if (request.message === 'open aichat' && !showPanel.value) {
         selectedText.value = ''
         isChatMode.value = true
-        panelPosition.value = {
-          top: (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) + 'px',
-          left: '0px',
-        }
+        panelPosition.value = getCenterPosition()
         showPanel.value = true
         sendResponse?.({ ok: true })
       }

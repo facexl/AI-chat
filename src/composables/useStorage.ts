@@ -1,6 +1,5 @@
 import { storage } from '../utils/storage'
 import type { TagItem } from '../types'
-import { DEFAULT_MODEL } from '../api/chat'
 
 export function useStorage() {
   const DEFAULT_TAGS: TagItem[] = [
@@ -10,19 +9,19 @@ export function useStorage() {
   ]
 
   async function loadAll() {
-    const data = await storage.get(['apikey', 'host', 'default_tag', 'isDark', 'tags', 'searchGpt', 'model'])
+    const data = await storage.get(['apikey', 'provider', 'default_tag', 'isDark', 'tags', 'searchGpt', 'model'])
     return {
       apikey: data.apikey as string || '',
-      host: data.host as string || '',
+      provider: data.provider as string || 'dashscope',
       defaultTag: data.default_tag as string || '',
       isDark: data.isDark as boolean || false,
       tags: Array.isArray(data.tags) ? data.tags : DEFAULT_TAGS,
       searchGpt: data.searchGpt as boolean || false,
-      model: data.model as string || DEFAULT_MODEL,
+      model: data.model as string || '',
     }
   }
 
-  async function saveSettings(settings: { apikey: string; host: string; searchGpt: boolean }) {
+  async function saveSettings(settings: { apikey: string; provider: string; searchGpt: boolean }) {
     return storage.set(settings)
   }
 

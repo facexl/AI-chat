@@ -19,8 +19,7 @@ export interface TagItem {
   content: string
 }
 
-export interface DashScopeMessage {
+export interface Message {
   role: string
   content: string
 }
-

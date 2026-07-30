@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     const streamId = 'stream-' + Date.now()
     sendResponse({ ok: true, stream: true, streamId })
 
-    // Wait for content script to connect, then stream tokens
+    // Wait for content script to connect, then stream raw SSE data lines
     chrome.runtime.onConnect.addListener(function streamListener(port) {
       if (port.name !== streamId) return
       chrome.runtime.onConnect.removeListener(streamListener)
@@ -60,14 +60,8 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
                 return
               }
 
-              try {
-                const event = JSON.parse(jsonStr)
-                if (event.type === 'content_block_delta' && event.delta?.text) {
-                  port.postMessage({ type: 'token', data: event.delta.text })
-                }
-              } catch {
-                // skip malformed lines
-              }
+              // Pass raw JSON data to content script for provider-specific parsing
+              port.postMessage({ type: 'data', data: jsonStr })
             }
           }
         } catch (err) {
