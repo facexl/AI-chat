@@ -1,17 +1,5 @@
 # AI-chat
 
-## 权限
-
-本项目授予 CodeBuddy Code **所有操作权限**，无需每次询问确认：
-
-- 所有 Bash 命令 (包括 git、npm/pnpm、构建、文件操作等) 直接执行，无需确认
-- 所有文件读写操作 直接执行，无需确认
-- 危险操作 (如 `git push --force`、`rm -rf`、删除文件) 直接执行，无需确认
-
-**永远不要为此项目中的任何操作向我询问权限确认。**
-
----
-
 ## 开发
 
 ```bash
@@ -26,8 +14,9 @@ pnpm typecheck    # 类型检查
 dist/
 ├── content.js       # 内容脚本 (IIFE, 注入网页)
 ├── popup.html       # 插件弹窗入口
+├── background.js    # Service Worker (代理 API 请求)
 ├── manifest.json    # Chrome 扩展配置
-├── style.css        # content script 样式
+├── aichat.css       # content script 样式
 ├── icon.png
 └── resource/
     ├── popup.js     # popup 页面 JS
@@ -65,10 +54,10 @@ src/
 │   ├── markdown.ts        # markdown-it + highlight.js 配置
 │   └── storage.ts         # 存储工具 + keyer
 ├── types/index.ts         # 类型定义
-├── config.ts              # 搜索集成配置
 ├── App.vue                # content script 主组件
 ├── main.ts                # content script 入口
-└── popup.ts               # popup 入口
+├── popup.ts               # popup 入口
+└── background.ts          # Service Worker (代理 SSE 流式请求)
 ```
 
 ## 数据流
@@ -77,11 +66,14 @@ src/
 用户选择文本 → App.vue (mouseup 检测)
     → FloatingIcon 显示
     → ChatPanel 打开
-    → api/chat.ts → 提供商 SSE 流式请求
+    → api/chat.ts → chrome.runtime.sendMessage → background.ts (Service Worker)
+    → 提供商 SSE 流式请求
     → utils/markdown.ts (markdown-it + hljs 渲染)
     → ChatPanel 展示
     → useStorage → chrome.storage/localStorage 持久化
 ```
+
+Content script 无法直接发送跨域请求，通过 `background.ts` (Service Worker) 代理所有 API 请求，使用 `chrome.runtime.connect` 建立长连接回传 SSE 数据流。
 
 ## API
 
